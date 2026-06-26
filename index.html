@@ -1,0 +1,1956 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IB Focus OS</title>
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f4f0;
+        --panel: rgba(255, 255, 255, 0.75);
+        --panel-strong: #ffffff;
+        --text: #2c3531;
+        --muted: #6f7871;
+        --line: rgba(44, 53, 49, 0.08);
+        --soft: #eae8e1;
+        --accent: #3a5a40;
+        --accent-glow: rgba(58, 90, 64, 0.15);
+        --accent-2: #e76f51;
+        --accent-2-glow: rgba(231, 111, 81, 0.15);
+        --shadow: 0 16px 40px rgba(44, 53, 49, 0.06);
+        --shadow-soft: 0 8px 24px rgba(44, 53, 49, 0.03);
+        --radius: 12px;
+      }
+
+      [data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0f1311;
+        --panel: rgba(22, 28, 26, 0.75);
+        --panel-strong: #171d1a;
+        --text: #e0ebd4;
+        --muted: #859187;
+        --line: rgba(224, 235, 212, 0.08);
+        --soft: #1d2522;
+        --accent: #52b788;
+        --accent-glow: rgba(82, 183, 136, 0.15);
+        --accent-2: #ff8a75;
+        --accent-2-glow: rgba(255, 138, 117, 0.15);
+        --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+        --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.2);
+      }
+
+      * {
+        box-sizing: border-box;
+        transition: background-color 0.25s ease, border-color 0.25s ease;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .app {
+        display: flex;
+        width: min(1360px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        width: 260px;
+        min-height: 100vh;
+        padding: 40px 24px;
+        border-right: 1px solid var(--line);
+        background: color-mix(in srgb, var(--bg) 95%, transparent);
+        backdrop-filter: blur(20px);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        z-index: 100;
+      }
+
+      .brand-group {
+        margin-bottom: 32px;
+      }
+
+      .brand {
+        margin: 0 0 4px;
+        color: var(--accent);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+      }
+
+      .subtle {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .nav {
+        display: grid;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .nav button,
+      .icon-button,
+      .secondary-button,
+      .primary-button {
+        border: 0;
+        border-radius: var(--radius);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .nav button {
+        width: 100%;
+        padding: 12px 16px;
+        background: transparent;
+        color: var(--muted);
+        text-align: left;
+        justify-content: flex-start;
+        font-size: 15px;
+        gap: 12px;
+      }
+
+      .nav button:hover {
+        background: var(--soft);
+        color: var(--text);
+      }
+
+      .nav button.active {
+        background: var(--accent);
+        color: var(--bg);
+        box-shadow: 0 4px 12px var(--accent-glow);
+      }
+
+      .sidebar-bottom {
+        margin-top: auto;
+        padding-top: 24px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .icon-button {
+        width: 42px;
+        height: 42px;
+        border: 1px solid var(--line);
+        background: var(--panel-strong);
+        color: var(--muted);
+      }
+
+      .icon-button:hover {
+        background: var(--soft);
+        color: var(--text);
+        transform: translateY(-1px);
+      }
+
+      .main {
+        flex: 1;
+        padding: 56px 48px;
+        overflow-y: auto;
+      }
+
+      .view {
+        display: none;
+        animation: fade-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .stack {
+        display: grid;
+        gap: 36px;
+      }
+
+      .section {
+        display: grid;
+        gap: 20px;
+      }
+
+      .top-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 40px);
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+
+      h2 {
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .panel,
+      .task-card,
+      .subject-card {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        backdrop-filter: blur(16px);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .panel {
+        padding: 24px;
+      }
+
+      .subject-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .subject-card {
+        padding: 20px;
+        min-height: 90px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .subject-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: var(--accent);
+      }
+
+      .segmented {
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--soft);
+      }
+
+      .segmented button {
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 16px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .segmented button.active {
+        background: var(--panel-strong);
+        color: var(--text);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .quick-add {
+        display: grid;
+        grid-template-columns: minmax(180px, 2fr) minmax(140px, 1.2fr) 150px 130px auto;
+        gap: 12px;
+        align-items: end;
+      }
+
+      .quick-add label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel-strong);
+        color: var(--text);
+        outline: 0;
+        padding: 10px 14px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-glow);
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .primary-button,
+      .secondary-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .primary-button {
+        background: var(--accent);
+        color: var(--bg);
+        box-shadow: 0 4px 12px var(--accent-glow);
+      }
+
+      .primary-button:hover {
+        opacity: 0.95;
+        transform: translateY(-1px);
+      }
+
+      .secondary-button {
+        border: 1px solid var(--line);
+        background: var(--panel-strong);
+        color: var(--text);
+      }
+
+      .secondary-button:hover {
+        background: var(--soft);
+        transform: translateY(-1px);
+      }
+
+      .task-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .task-card {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 16px;
+        padding: 20px;
+        border-left: 4px solid var(--line);
+        align-items: center;
+      }
+
+      .task-card.high {
+        border-left-color: var(--accent-2);
+      }
+
+      .task-card.medium {
+        border-left-color: var(--accent);
+      }
+
+      .task-card.low {
+        border-left-color: var(--line);
+      }
+
+      .task-card.next {
+        box-shadow: 0 0 0 2px var(--accent);
+      }
+
+      .check-button {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--line);
+        border-radius: 6px;
+        background: var(--panel-strong);
+        color: var(--muted);
+        transition: all 0.2s;
+      }
+
+      .check-button.done {
+        background: var(--accent);
+        border-color: var(--accent);
+        transform: scale(1.12);
+      }
+
+      .check-button.done::after {
+        content: "";
+        width: 8px;
+        height: 4px;
+        border-left: 2px solid var(--bg);
+        border-bottom: 2px solid var(--bg);
+        transform: rotate(-45deg) translate(1px, -1px);
+      }
+
+      .task-title.done {
+        color: var(--muted);
+        text-decoration: line-through;
+        opacity: 0.75;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 6px;
+      }
+
+      .pill {
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--accent) 10%, transparent);
+        color: var(--accent);
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .pill.priority-high {
+        background: color-mix(in srgb, var(--accent-2) 10%, transparent);
+        color: var(--accent-2);
+      }
+
+      .pill.pill-next {
+        background: var(--accent);
+        color: var(--bg);
+      }
+
+      .empty {
+        border: 2px dashed var(--line);
+        border-radius: var(--radius);
+        padding: 40px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 15px;
+      }
+
+      .course-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        padding: 16px 24px;
+        align-items: center;
+      }
+
+      .timer-wrap {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      /* Circular Timer */
+      .timer-circle-container {
+        position: relative;
+        width: 260px;
+        height: 260px;
+        margin: 20px auto 30px;
+      }
+
+      .timer-ring {
+        transform: rotate(-90deg);
+      }
+
+      .timer-ring-bg {
+        fill: transparent;
+        stroke: var(--soft);
+        stroke-width: 8px;
+      }
+
+      .timer-ring-progress {
+        fill: transparent;
+        stroke: var(--accent);
+        stroke-width: 8px;
+        stroke-dasharray: 691; /* 2 * PI * 110 */
+        stroke-dashoffset: 0;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.3s ease;
+      }
+
+      .timer-time-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .timer-time {
+        font-size: 64px;
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+
+      .timer-controls {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 10px;
+      }
+
+      .summary-card {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .summary-stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .summary-stat-row:last-child {
+        border-bottom: 0;
+      }
+
+      .progress-bar-container {
+        width: 150px;
+        height: 8px;
+        background: var(--soft);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 4px;
+        width: 0%;
+        transition: width 0.5s ease-out;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .error {
+        color: #b42318;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      [data-theme="dark"] .error {
+        color: #ffb4ab;
+      }
+
+      /* Calendar CSS */
+      .calendar-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+        margin-top: 15px;
+      }
+      .calendar-day-header {
+        text-align: center;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--muted);
+        padding: 8px 0;
+      }
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 6px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        cursor: pointer;
+        transition: all 0.2s;
+        min-height: 50px;
+        font-weight: 500;
+      }
+      .calendar-day:hover {
+        background: var(--soft);
+      }
+      .calendar-day.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px var(--accent-glow);
+      }
+      .calendar-day.other-month {
+        opacity: 0.3;
+      }
+      .calendar-day.event-complete {
+        background: rgba(82, 183, 136, 0.25) !important;
+        border-color: rgba(82, 183, 136, 0.5);
+      }
+      .calendar-day.event-incomplete {
+        background: rgba(180, 35, 24, 0.18) !important;
+        border-color: rgba(180, 35, 24, 0.4);
+      }
+
+      /* Modal CSS */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.hidden {
+        display: none !important;
+      }
+      @keyframes modal-enter {
+        from { opacity: 0; transform: scale(0.96); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .modal-content {
+        animation: modal-enter 0.2s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+
+      @media (max-width: 900px) {
+        .app {
+          display: block;
+        }
+
+        .sidebar {
+          width: 100%;
+          min-height: auto;
+          padding: 24px;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .brand-group {
+          margin-bottom: 16px;
+        }
+
+        .nav {
+          display: flex;
+          gap: 6px;
+          margin-top: 12px;
+          overflow-x: auto;
+          padding-bottom: 8px;
+        }
+
+        .nav button {
+          width: auto;
+          white-space: nowrap;
+        }
+
+        .sidebar-bottom {
+          display: none; /* Combine reset into settings/etc */
+        }
+
+        .main {
+          padding: 32px 24px;
+        }
+
+        .top-row {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .subject-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .quick-add {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .subject-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .timer-controls {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div>
+          <div class="brand-group">
+            <p class="brand">IB Focus OS</p>
+            <p class="subtle">Sleek daily workflow</p>
+          </div>
+          <nav class="nav" aria-label="Main navigation">
+            <button class="active" data-view-button="dashboard" type="button">Dashboard</button>
+            <button data-view-button="tasks" type="button">Tasks</button>
+            <button data-view-button="courses" type="button">Courses</button>
+            <button data-view-button="timer" type="button">Focus Timer</button>
+            <button data-view-button="calendar" type="button">Calendar</button>
+            <button data-view-button="summary" type="button">Day Summary</button>
+            <button data-view-button="settings" type="button">Settings</button>
+          </nav>
+        </div>
+        <div class="sidebar-bottom">
+          <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">‚òº</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <!-- Dashboard -->
+        <section class="view active" id="dashboardView">
+          <div class="stack">
+            <div class="section">
+              <div class="top-row">
+                <div>
+                  <p class="brand">Dashboard</p>
+                  <h1 id="dayTitle">Day 1 Focus</h1>
+                  <p class="subtle">Four active subjects. One clear path forward.</p>
+                </div>
+                <div class="segmented" aria-label="Day selector">
+                  <button class="active" data-day="day1" type="button">Day 1</button>
+                  <button data-day="day2" type="button">Day 2</button>
+                </div>
+              </div>
+              <div class="subject-grid" id="todaySubjects"></div>
+            </div>
+
+            <div class="section">
+              <div class="top-row">
+                <div>
+                  <h2>Today's Priority Tasks</h2>
+                  <p class="subtle">Connected to today's subjects or due today.</p>
+                </div>
+                <button class="primary-button" id="startSuggested" type="button">Start Suggested</button>
+              </div>
+              <div class="task-list" id="dashboardTasks"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tasks -->
+        <section class="view" id="tasksView">
+          <div class="stack">
+            <div class="section">
+              <p class="brand">Tasks</p>
+              <h1>Frictionless task capture.</h1>
+              <p class="subtle">Add tasks dynamically and let the dashboard organize them for you.</p>
+            </div>
+            <form class="quick-add panel" id="taskAddForm"></form>
+            <div class="section">
+              <h2>All Active Tasks</h2>
+              <div class="task-list" id="allTasks"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Courses -->
+        <section class="view" id="coursesView">
+          <div class="stack">
+            <div class="section">
+              <p class="brand">Courses</p>
+              <h1>Your 2-Day Rhythm</h1>
+              <p class="subtle">Define 8 blocks, distributing exactly 4 to Day 1 and 4 to Day 2.</p>
+            </div>
+            <form class="section" id="courseForm">
+              <div id="courseRows" class="section"></div>
+              <div class="subject-grid">
+                <div class="panel">
+                  <h3>Day 1</h3>
+                  <p class="subtle" id="day1Count">0 of 4 blocks</p>
+                </div>
+                <div class="panel">
+                  <h3>Day 2</h3>
+                  <p class="subtle" id="day2Count">0 of 4 blocks</p>
+                </div>
+              </div>
+              <p class="error hidden" id="courseError"></p>
+              <button class="primary-button" type="submit">Save Cycle Structure</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Timer -->
+        <section class="view" id="timerView">
+          <div class="timer-wrap stack">
+            <div>
+              <p class="brand">Focus Timer</p>
+              <div class="timer-circle-container">
+                <svg class="timer-ring" width="240" height="240">
+                  <circle class="timer-ring-bg" cx="120" cy="120" r="110" />
+                  <circle class="timer-ring-progress" cx="120" cy="120" r="110" />
+                </svg>
+                <div class="timer-time-overlay">
+                  <div class="timer-time" id="timerTime">25:00</div>
+                  <p class="subtle" id="timerModeText">Focus Session</p>
+                </div>
+              </div>
+            </div>
+            <div class="segmented" style="max-width: 320px; margin: 0 auto;">
+              <button class="active" data-timer-mode="focus" type="button">Focus</button>
+              <button data-timer-mode="break" type="button">Break</button>
+            </div>
+            <div class="timer-adjusters" style="display: flex; justify-content: center; gap: 20px; margin: 5px auto;">
+              <div>
+                <label style="display: block; margin-bottom: 6px;">Focus Duration</label>
+                <div class="segmented" style="padding: 2px;">
+                  <button type="button" data-adjust-timer="focus:-5">-</button>
+                  <span id="focusDurationText" style="padding: 0 12px; font-weight: 600; line-height: 2.2;">25m</span>
+                  <button type="button" data-adjust-timer="focus:5">+</button>
+                </div>
+              </div>
+              <div>
+                <label style="display: block; margin-bottom: 6px;">Break Duration</label>
+                <div class="segmented" style="padding: 2px;">
+                  <button type="button" data-adjust-timer="break:-5">-</button>
+                  <span id="breakDurationText" style="padding: 0 12px; font-weight: 600; line-height: 2.2;">5m</span>
+                  <button type="button" data-adjust-timer="break:5">+</button>
+                </div>
+              </div>
+            </div>
+            <div class="timer-controls">
+              <button class="primary-button" id="timerStartPause" type="button">Start</button>
+              <button class="secondary-button" id="timerReset" type="button">Reset</button>
+            </div>
+            <div class="panel" style="text-align: left;">
+              <label for="activeTask">Active Focus Target</label>
+              <select id="activeTask" style="margin-top: 8px;"></select>
+              <p class="subtle" id="activeTaskText" style="margin-top: 10px;">Select a subject or task to log focus metrics.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Calendar -->
+        <section class="view" id="calendarView">
+          <div class="stack">
+            <div class="section">
+              <p class="brand">Calendar</p>
+              <div class="top-row">
+                <h1 id="calendarMonthTitle">June 2026</h1>
+                <div class="segmented">
+                  <button id="prevMonth" type="button">‚óÄ</button>
+                  <button id="nextMonth" type="button">‚ñ∂</button>
+                </div>
+              </div>
+              <div class="calendar-container" id="calendarGrid"></div>
+            </div>
+            
+            <div class="panel id-day-events" id="calendarDayDetails" style="display: flex; flex-direction: column; gap: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h2 id="detailsDateTitle">Select a date</h2>
+                <button class="primary-button" id="addEventPromptBtn" type="button" style="min-height: 38px; padding: 6px 14px; font-size: 13px;">+ Add Event</button>
+              </div>
+              <div id="calendarEventsList" class="stack" style="gap: 10px;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Summary -->
+        <section class="view" id="summaryView">
+          <div class="stack">
+            <div class="section">
+              <p class="brand">Day Summary</p>
+              <h1>Today's Study Metrics</h1>
+              <p class="subtle">Analyze hours spent on each subject cycle.</p>
+            </div>
+            <div class="panel summary-card">
+              <div class="top-row">
+                <h2>Time Allocation</h2>
+                <div class="segmented" id="summaryDaySelector">
+                  <button class="active" data-summary-day="today" type="button">Today</button>
+                  <button data-summary-day="week" type="button">This Week</button>
+                </div>
+              </div>
+              <div id="summaryStatsContainer" class="stack" style="gap: 16px; margin-top: 12px;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings -->
+        <section class="view" id="settingsView">
+          <div class="stack">
+            <div class="section">
+              <p class="brand">Settings</p>
+              <h1>Control System Preferences</h1>
+              <p class="subtle">Locally cached inside your browser storage.</p>
+            </div>
+            <div class="panel section">
+              <h2>Device Sync (Database-free)</h2>
+              <p class="subtle">Generate a sync link to transfer all your courses, tasks, logs, and calendar events to your phone or another browser.</p>
+              <button class="primary-button" id="settingsSyncGen" type="button" style="background: var(--accent); color: var(--bg);">Generate & Copy Sync Link</button>
+            </div>
+            <div class="panel section">
+              <h2>Data Management</h2>
+              <p class="subtle">Completely wipe local configuration and focus logs.</p>
+              <button class="secondary-button" id="settingsReset" type="button" style="color: #b42318; border-color: rgba(180,35,24,0.2);">Reset Local Data</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Premium Custom Modal Overlay -->
+    <div id="customModal" class="modal-overlay hidden">
+      <div class="panel modal-content" style="
+        width: min(380px, 95%);
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-shadow: var(--shadow);
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      ">
+        <h2 id="modalTitle" style="font-size: 20px; font-weight: 700; margin: 0; letter-spacing: -0.01em; text-align: center;">Select Time</h2>
+        
+        <!-- Existing Events in Modal -->
+        <div id="modalEventsWrapper" style="display: none; border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 4px;">
+          <h3 style="font-size: 13px; text-align: left; margin-bottom: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Events Scheduled</h3>
+          <div id="modalEventsList" class="stack" style="gap: 8px; text-align: left; max-height: 180px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Add Event Time Input and Event Name -->
+        <div id="modalAddControls" style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
+          <h3 style="font-size: 13px; text-align: left; margin-bottom: 2px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Add New Event</h3>
+          <input type="text" id="modalEventTitle" placeholder="Event Name (e.g. English Prep)" style="font-size: 15px; min-height: 40px; padding: 10px;" required />
+          <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
+            <select id="modalHour" style="width: 76px; text-align: center; font-size: 16px; font-weight: 600; min-height: 40px; padding: 6px;">
+              <option value="12">12</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+            </select>
+            <span style="font-weight: bold; font-size: 20px;">:</span>
+            <select id="modalMinute" style="width: 76px; text-align: center; font-size: 16px; font-weight: 600; min-height: 40px; padding: 6px;">
+              <option value="00">00</option>
+              <option value="05">05</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+              <option value="35">35</option>
+              <option value="40">40</option>
+              <option value="45">45</option>
+              <option value="50">50</option>
+              <option value="55">55</option>
+            </select>
+            <div class="segmented" id="modalAmPm" style="padding: 2px;">
+              <button class="active" data-ampm="AM" type="button" style="padding: 6px 12px; font-size: 13px;">AM</button>
+              <button data-ampm="PM" type="button" style="padding: 6px 12px; font-size: 13px;">PM</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; width: 100%;">
+          <button class="secondary-button" id="modalCancelBtn" type="button" style="flex: 1; min-height: 42px; border-radius: 10px; font-size: 14px;">Close</button>
+          <button class="primary-button" id="modalConfirmBtn" type="button" style="flex: 1; min-height: 42px; border-radius: 10px; font-size: 14px; background: var(--accent); color: var(--bg);">Add Event</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener("error", (e) => {
+        const div = document.createElement("div");
+        div.style.position = "fixed";
+        div.style.top = "0";
+        div.style.left = "0";
+        div.style.width = "100%";
+        div.style.background = "#b42318";
+        div.style.color = "white";
+        div.style.padding = "10px";
+        div.style.zIndex = "99999";
+        div.style.fontSize = "14px";
+        div.textContent = "Script Error: " + e.message + " at " + e.filename + ":" + e.lineno;
+        document.body.appendChild(div);
+      });
+
+      const storeKey = "ib-focus-os-local";
+      const focusSeconds = 25 * 60;
+      const breakSeconds = 5 * 60;
+
+      const defaultState = {
+        theme: "light",
+        activeView: "dashboard",
+        dayType: "day1",
+        courses: ["", "", "", "", "", "", "", ""],
+        courseDays: ["day1", "day1", "day1", "day1", "day2", "day2", "day2", "day2"],
+        tasks: [],
+        activeTaskId: "",
+        timerMode: "focus",
+        focusDuration: 25,
+        breakDuration: 5,
+        secondsLeft: 25 * 60,
+        timerRunning: false,
+        timeLogs: {}, // Keyed by YYYY-MM-DD: { subjects: {}, tasks: {} }
+        events: [],
+        selectedDate: todayISO(0)
+      };
+
+      function saveState() {
+        localStorage.setItem(storeKey, JSON.stringify(state));
+      }
+
+      function checkUrlImport() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const urlData = params.get("sync");
+          if (urlData) {
+            const decoded = JSON.parse(decodeURIComponent(escape(atob(urlData))));
+            if (decoded && typeof decoded === "object") {
+              state = { ...defaultState, ...decoded };
+              saveState();
+              const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+              window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
+              alert("Data successfully imported from sync link!");
+            }
+          }
+        } catch (e) {
+          console.error("Failed to parse URL import data", e);
+        }
+      }
+
+      let state = loadState();
+      checkUrlImport();
+
+      let timerId = null;
+      let currentMonthDate = new Date();
+
+      function getFocusSeconds() {
+        return (state.focusDuration || 25) * 60;
+      }
+
+      function getBreakSeconds() {
+        return (state.breakDuration || 5) * 60;
+      }
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(storeKey)) || {};
+          const loaded = { ...defaultState, ...saved };
+          loaded.courseDays = ["day1", "day1", "day1", "day1", "day2", "day2", "day2", "day2"];
+          if (!loaded.events) loaded.events = [];
+          if (!loaded.tasks) loaded.tasks = [];
+          if (!loaded.timeLogs) loaded.timeLogs = {};
+          return loaded;
+        } catch {
+          const fallback = { ...defaultState };
+          fallback.events = [];
+          fallback.tasks = [];
+          fallback.timeLogs = {};
+          return fallback;
+        }
+      }
+
+      function todayISO(offsetDays = 0) {
+        const d = new Date();
+        d.setDate(d.getDate() - offsetDays);
+        return d.toISOString().slice(0, 10);
+      }
+
+      function hasSetup() {
+        const clean = state.courses.map((course) => course.trim()).filter(Boolean);
+        return clean.length === 8 && schedule().day1.length === 4 && schedule().day2.length === 4;
+      }
+
+      function schedule() {
+        return state.courses.reduce(
+          (next, course, index) => {
+            const clean = course.trim();
+            if (clean) next[state.courseDays[index]].push(clean);
+            return next;
+          },
+          { day1: [], day2: [] }
+        );
+      }
+
+      function visibleCourses() {
+        return state.courses.map((course) => course.trim()).filter(Boolean);
+      }
+
+      function sortTasks(tasks) {
+        const priorityRank = { high: 0, medium: 1, low: 2 };
+        return [...tasks].sort((a, b) => {
+          if (a.status !== b.status) return a.status === "todo" ? -1 : 1;
+          if (priorityRank[a.priority] !== priorityRank[b.priority]) {
+            return priorityRank[a.priority] - priorityRank[b.priority];
+          }
+          return 0;
+        });
+      }
+
+      function dashboardTasks() {
+        const subjects = schedule()[state.dayType];
+        return sortTasks(
+          state.tasks.filter(
+            (task) =>
+              task.status === "todo" &&
+              (subjects.includes(task.subject))
+          )
+        );
+      }
+
+      function focusSuggestion(tasks) {
+        return sortTasks(tasks).find((task) => task.status === "todo") || null;
+      }
+
+      function viewNameToId(viewName) {
+        return `${viewName}View`;
+      }
+
+      function showView(viewName) {
+        state.activeView = viewName;
+        if (!hasSetup()) state.activeView = "courses";
+        saveState();
+        render();
+      }
+
+      function render() {
+        document.documentElement.dataset.theme = state.theme;
+        document.getElementById("themeToggle").textContent = state.theme === "light" ? "‚òæ" : "‚òº";
+        if (!hasSetup()) state.activeView = "courses";
+
+        document.querySelectorAll(".view").forEach((view) => {
+          view.classList.toggle("active", view.id === viewNameToId(state.activeView));
+        });
+
+        document.querySelectorAll("[data-view-button]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.viewButton === state.activeView);
+        });
+
+        document.querySelectorAll("[data-day]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.day === state.dayType);
+        });
+
+        renderSubjects();
+        renderTasks();
+        renderCourses();
+        renderTimer();
+        renderSummary();
+        renderCalendar();
+      }
+
+      function renderSubjects() {
+        const subjects = schedule()[state.dayType];
+        document.getElementById("dayTitle").textContent =
+          state.dayType === "day1" ? "Day 1 Focus" : "Day 2 Focus";
+        document.getElementById("todaySubjects").innerHTML =
+          subjects.map((subject) => `<div class="subject-card"><h3>${escapeHtml(subject)}</h3></div>`).join("") ||
+          `<div class="empty">Define your 8 blocks to populate the cycle dashboard.</div>`;
+      }
+
+      function quickFormHtml() {
+        const courses = visibleCourses();
+        const subjectOptions = courses
+          .map((course) => `<option value="${escapeHtml(course)}">${escapeHtml(course)}</option>`)
+          .join("");
+
+        return `
+          <label>Task Description
+            <input name="title" placeholder="Enter task description" required />
+          </label>
+          <label>Subject
+            <select name="subject" required>${subjectOptions}</select>
+          </label>
+          <label>Priority
+            <select name="priority">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <button class="primary-button" type="submit">Add Task</button>
+        `;
+      }
+
+      function renderTasks() {
+        const form = document.getElementById("taskAddForm");
+        if (form) form.innerHTML = quickFormHtml();
+        
+        const todayTasks = dashboardTasks();
+        const allTasks = sortTasks(state.tasks);
+        const suggestion = focusSuggestion(todayTasks);
+        document.getElementById("dashboardTasks").innerHTML = taskListHtml(
+          todayTasks,
+          "No tasks for current cycle day.",
+          suggestion
+        );
+        document.getElementById("allTasks").innerHTML = taskListHtml(
+          allTasks,
+          "No active tasks saved.",
+          focusSuggestion(allTasks)
+        );
+        const startBtn = document.getElementById("startSuggested");
+        if (startBtn) startBtn.disabled = !suggestion;
+      }
+
+      function taskListHtml(tasks, emptyText, suggestion) {
+        if (!tasks.length) return `<div class="empty">${emptyText}</div>`;
+        return tasks.map((task) => taskHtml(task, suggestion && suggestion.id === task.id)).join("");
+      }
+
+      function taskHtml(task, suggested) {
+        const done = task.status === "done";
+        const pills = [
+          suggested ? `<span class="pill pill-next">Next</span>` : "",
+          `<span class="pill priority-${escapeHtml(task.priority)}">${escapeHtml(task.priority)}</span>`
+        ].join("");
+
+        return `
+          <article class="task-card ${escapeHtml(task.priority)} ${suggested ? "next" : ""} ${done ? "task-completed" : ""}">
+            <button class="check-button ${done ? "done" : ""}" data-toggle-task="${task.id}" type="button" aria-label="Complete task"></button>
+            <div>
+              <div class="pill-row">${pills}</div>
+              <h3 class="task-title ${done ? "done" : ""}">${escapeHtml(task.title)}</h3>
+              <p class="subtle">${escapeHtml(task.subject)}</p>
+            </div>
+            <button class="icon-button" data-delete-task="${task.id}" type="button" aria-label="Delete task">‚úï</button>
+          </article>
+        `;
+      }
+
+      function updateCourseCounts() {
+        const nextSchedule = schedule();
+        document.getElementById("day1Count").textContent = `${nextSchedule.day1.length} of 4 blocks`;
+        document.getElementById("day2Count").textContent = `${nextSchedule.day2.length} of 4 blocks`;
+      }
+
+      function renderCourses() {
+        document.getElementById("courseRows").innerHTML = state.courses
+          .map(
+            (course, index) => {
+              const isDay1 = index < 4;
+              const blockNum = isDay1 ? (index + 1) : (index - 3);
+              const labelText = `Day ${isDay1 ? 1 : 2} ‚Äî Block ${blockNum}`;
+              const placeholderText = `Enter Day ${isDay1 ? 1 : 2} Block ${blockNum} class`;
+              return `
+                <div class="course-row panel">
+                  <label style="flex: 1;">
+                    ${labelText}
+                    <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="${placeholderText}" required />
+                  </label>
+                </div>
+              `;
+            }
+          )
+          .join("");
+
+        updateCourseCounts();
+      }
+
+      function renderTimer() {
+        document.getElementById("timerTime").textContent = formatTime(state.secondsLeft);
+        document.getElementById("timerModeText").textContent =
+          state.timerMode === "focus" ? "Focus Session" : "Break Session";
+        document.getElementById("timerStartPause").textContent = state.timerRunning ? "Pause" : "Start";
+
+        document.getElementById("focusDurationText").textContent = `${state.focusDuration || 25}m`;
+        document.getElementById("breakDurationText").textContent = `${state.breakDuration || 5}m`;
+
+        const circleProgress = document.querySelector(".timer-ring-progress");
+        if (circleProgress) {
+          const totalSeconds = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+          const pct = state.secondsLeft / totalSeconds;
+          circleProgress.style.strokeDashoffset = 691 - (691 * pct);
+        }
+
+        document.querySelectorAll("[data-timer-mode]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.timerMode === state.timerMode);
+        });
+
+        const taskSelect = document.getElementById("activeTask");
+        const activeTasksHtml = state.tasks
+          .filter((task) => task.status === "todo")
+          .map((task) => {
+            const val = `task:${task.id}`;
+            return `<option value="${val}" ${val === state.activeTaskId ? "selected" : ""}>Task: ${escapeHtml(task.title)} (${escapeHtml(task.subject)})</option>`;
+          }).join("");
+
+        const subjectsHtml = visibleCourses().map((sub) => {
+          const val = `subject:${sub}`;
+          return `<option value="${val}" ${val === state.activeTaskId ? "selected" : ""}>Subject: ${escapeHtml(sub)}</option>`;
+        }).join("");
+
+        taskSelect.innerHTML = `
+          <option value="">General Focus (Uncategorized)</option>
+          <optgroup label="Your Tasks">${activeTasksHtml}</optgroup>
+          <optgroup label="Subjects Only">${subjectsHtml}</optgroup>
+        `;
+
+        let displayStr = "General study session focus.";
+        if (state.activeTaskId.startsWith("task:")) {
+          const tid = state.activeTaskId.replace("task:", "");
+          const found = state.tasks.find((t) => t.id === tid);
+          if (found) displayStr = `Working on: ${found.title} (${found.subject})`;
+        } else if (state.activeTaskId.startsWith("subject:")) {
+          const sub = state.activeTaskId.replace("subject:", "");
+          displayStr = `Focusing on: ${sub}`;
+        }
+        document.getElementById("activeTaskText").textContent = displayStr;
+      }
+
+      function getWeekDates() {
+        const dates = [];
+        for (let i = 0; i < 7; i++) {
+          dates.push(todayISO(i));
+        }
+        return dates;
+      }
+
+      function renderSummary() {
+        const container = document.getElementById("summaryStatsContainer");
+        const selectMode = document.querySelector("[data-summary-day].active")?.dataset.summaryDay || "today";
+        
+        let subjects = {};
+        let tasks = {};
+        let completedTasksHtml = "";
+        let completedTasksCount = 0;
+
+        if (selectMode === "week") {
+          const dates = getWeekDates();
+          dates.forEach((date) => {
+            const logs = state.timeLogs[date] || {};
+            let daySubjects = logs.subjects || {};
+            let dayTasks = logs.tasks || {};
+            Object.entries(daySubjects).forEach(([sub, secs]) => {
+              subjects[sub] = (subjects[sub] || 0) + secs;
+            });
+            Object.entries(dayTasks).forEach(([tid, tInfo]) => {
+              if (!tasks[tid]) {
+                tasks[tid] = { title: tInfo.title, subject: tInfo.subject, seconds: 0 };
+              }
+              tasks[tid].seconds += tInfo.seconds;
+            });
+          });
+
+          const weeklyCompleted = state.tasks.filter(t => t.status === "done" && dates.includes(t.completedAt));
+          completedTasksCount = weeklyCompleted.length;
+          completedTasksHtml = weeklyCompleted.map(t => `
+            <div style="font-size: 14px; padding: 10px 14px; background: var(--soft); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 500; text-decoration: line-through; opacity: 0.7;">‚úì ${escapeHtml(t.title)}</span>
+              <span class="pill" style="margin-left: 10px;">${escapeHtml(t.subject)}</span>
+            </div>
+          `).join("");
+
+        } else {
+          const targetDate = todayISO(0);
+          const logs = state.timeLogs[targetDate] || {};
+          subjects = logs.subjects || {};
+          tasks = logs.tasks || {};
+
+          const dailyCompleted = state.tasks.filter(t => t.status === "done" && t.completedAt === targetDate);
+          completedTasksCount = dailyCompleted.length;
+          completedTasksHtml = dailyCompleted.map(t => `
+            <div style="font-size: 14px; padding: 10px 14px; background: var(--soft); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-weight: 500; text-decoration: line-through; opacity: 0.7;">‚úì ${escapeHtml(t.title)}</span>
+              <span class="pill" style="margin-left: 10px;">${escapeHtml(t.subject)}</span>
+            </div>
+          `).join("");
+        }
+        
+        const entries = Object.entries(subjects);
+        let subjectsHtml = "";
+        
+        if (!entries.length) {
+          subjectsHtml = `<div class="empty">No study focus hours logged.</div>`;
+        } else {
+          const maxSecs = Math.max(...entries.map(e => e[1]), 1);
+          subjectsHtml = entries.map(([subject, seconds]) => {
+            const percentage = Math.min((seconds / maxSecs) * 100, 100);
+            const hours = (seconds / 3600).toFixed(2);
+            const mins = Math.round((seconds % 3600) / 60);
+            let displayTime = seconds >= 3600 ? `${hours} hrs` : `${mins} mins`;
+
+            const subjectTasks = Object.values(tasks).filter((t) => t.subject === subject && t.seconds > 0);
+            const tasksHtml = subjectTasks.map((t) => {
+              const tHours = (t.seconds / 3600).toFixed(2);
+              const tMins = Math.round((t.seconds % 3600) / 60);
+              const tDisplay = t.seconds >= 3600 ? `${tHours} hrs` : `${tMins} mins`;
+              return `
+                <div style="display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); padding: 4px 0 4px 16px; border-left: 2px solid var(--line); margin-top: 4px;">
+                  <span>‚Ä¢ ${escapeHtml(t.title)}</span>
+                  <span>${tDisplay}</span>
+                </div>
+              `;
+            }).join("");
+
+            return `
+              <div class="summary-stat-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                  <div>
+                    <h3 style="margin-bottom: 2px;">${escapeHtml(subject)}</h3>
+                    <p class="subtle">${displayTime} focused</p>
+                  </div>
+                  <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: ${percentage}%;"></div>
+                  </div>
+                </div>
+                ${tasksHtml ? `<div style="margin-top: 4px; display: flex; flex-direction: column;">${tasksHtml}</div>` : ""}
+              </div>
+            `;
+          }).join("");
+        }
+
+        const tasksSectionHtml = `
+          <div style="margin-top: 28px; border-top: 1px solid var(--line); padding-top: 24px;">
+            <h3 style="margin-bottom: 12px; font-size: 16px; font-weight: 600;">Tasks Completed (${completedTasksCount})</h3>
+            <div class="stack" style="gap: 8px;">
+              ${completedTasksHtml || `<div class="subtle" style="font-size: 14px; text-align: center; padding: 12px 0;">No tasks checked off for this period.</div>`}
+            </div>
+          </div>
+        `;
+
+        container.innerHTML = subjectsHtml + tasksSectionHtml;
+      }
+
+      function renderCalendar() {
+        const grid = document.getElementById("calendarGrid");
+        const monthTitle = document.getElementById("calendarMonthTitle");
+        if (!grid || !monthTitle) return;
+        const year = currentMonthDate.getFullYear();
+        const month = currentMonthDate.getMonth();
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        monthTitle.textContent = `${monthNames[month]} ${year}`;
+        const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
+        let html = daysOfWeek.map(d => `<div class="calendar-day-header">${d}</div>`).join("");
+        const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7;
+        const lastDay = new Date(year, month + 1, 0).getDate();
+        const prevLastDay = new Date(year, month, 0).getDate();
+        for (let i = firstDayIndex; i > 0; i--) {
+          const dayNum = prevLastDay - i + 1;
+          const checkMonth = month === 0 ? 11 : month - 1;
+          const checkYear = month === 0 ? year - 1 : year;
+          const dateStr = `${checkYear}-${String(checkMonth + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
+          html += renderCalendarDayHtml(dayNum, dateStr, true);
+        }
+        for (let i = 1; i <= lastDay; i++) {
+          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+          html += renderCalendarDayHtml(i, dateStr, false);
+        }
+        const totalSlots = 42;
+        const currentSlots = firstDayIndex + lastDay;
+        const nextFiller = totalSlots - currentSlots;
+        for (let i = 1; i <= nextFiller; i++) {
+          const checkMonth = month === 11 ? 0 : month + 1;
+          const checkYear = month === 11 ? year + 1 : year;
+          const dateStr = `${checkYear}-${String(checkMonth + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+          html += renderCalendarDayHtml(i, dateStr, true);
+        }
+        grid.innerHTML = html;
+        renderCalendarDetails();
+      }
+
+      function renderCalendarDayHtml(dayNum, dateStr, isOtherMonth) {
+        const events = (state.events || []).filter(e => e.date === dateStr);
+        const isActive = dateStr === state.selectedDate ? "active" : "";
+        const otherClass = isOtherMonth ? "other-month" : "";
+        
+        let eventsHtml = "";
+        if (events.length > 0) {
+          eventsHtml = `<div style="display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 4px; text-align: left; font-size: 9px; line-height: 1.2; overflow: hidden;">` + 
+            events.slice(0, 8).map(e => `
+              <div style="font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; padding: 2px 4px; background: ${e.completed ? 'rgba(82, 183, 136, 0.25)' : 'rgba(180, 35, 24, 0.18)'}; border-radius: 3px; border-left: 2px solid ${e.completed ? 'var(--accent)' : 'var(--accent-2)'}; color: var(--text);" title="${escapeHtml(e.title)} (${escapeHtml(e.time)})">
+                ${escapeHtml(e.title)} <span style="font-weight: 400; opacity: 0.8; font-size: 8px;">(${escapeHtml(e.time)})</span>
+              </div>
+            `).join("") + 
+            (events.length > 8 ? `<div style="font-size: 8px; color: var(--muted); text-align: center; font-weight: 600; margin-top: 2px;">+${events.length - 8} more</div>` : "") +
+          `</div>`;
+        }
+
+        return `
+          <button class="calendar-day ${isActive} ${otherClass}" data-calendar-date="${dateStr}" type="button" style="height: auto; min-height: 115px; justify-content: flex-start; align-items: stretch; aspect-ratio: auto; padding: 6px;">
+            <span style="font-size: 12px; align-self: flex-start; font-weight: 600;">${dayNum}</span>
+            ${eventsHtml}
+          </button>
+        `;
+      }
+
+      function renderCalendarDetails() {
+        const selected = state.selectedDate;
+        document.getElementById("detailsDateTitle").textContent = `Events for ${selected}`;
+        
+        const list = document.getElementById("calendarEventsList");
+        const events = (state.events || []).filter(e => e.date === selected);
+        
+        if (!events.length) {
+          list.innerHTML = `<div class="empty">No events scheduled. Click a date to add an event.</div>`;
+          return;
+        }
+        
+        list.innerHTML = events.map(e => `
+          <div class="task-card" style="padding: 12px 18px; border-left-width: 4px; border-left-color: ${e.completed ? 'var(--accent)' : 'var(--accent-2)'}; display: grid; grid-template-columns: auto 1fr auto; align-items: center; width: 100%;">
+            <button class="check-button ${e.completed ? 'done' : ''}" data-toggle-event="${e.id}" type="button" aria-label="Complete event"></button>
+            <div style="margin-left: 10px;">
+              <h3 class="${e.completed ? 'done' : ''}" style="font-size: 15px; margin: 0;">${escapeHtml(e.title)}</h3>
+              <p class="subtle" style="font-size: 12px; margin: 2px 0 0 0;">Time: ${escapeHtml(e.time)}</p>
+            </div>
+            <button class="icon-button" data-delete-event="${e.id}" type="button" aria-label="Delete event" style="width: 32px; height: 32px;">‚úï</button>
+          </div>
+        `).join("");
+      }
+
+      let modalTargetDate = "";
+      let modalActionType = ""; // "add", "complete", "reset"
+
+      function openModalForDate(dateStr) {
+        modalTargetDate = dateStr;
+        const events = (state.events || []).filter(e => e.date === dateStr);
+        const modal = document.getElementById("customModal");
+        
+        const titleInput = document.getElementById("modalEventTitle");
+        if (titleInput) titleInput.value = "";
+        
+        const wrapper = document.getElementById("modalEventsWrapper");
+        const list = document.getElementById("modalEventsList");
+        
+        if (events.length > 0) {
+          wrapper.style.display = "block";
+          list.innerHTML = events.map(e => `
+            <div style="padding: 10px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); border-left: 4px solid ${e.completed ? 'var(--accent)' : 'var(--accent-2)'}; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px; min-width: 0;">
+                <button class="check-button ${e.completed ? 'done' : ''}" data-modal-toggle-event="${e.id}" type="button" aria-label="Complete event" style="width: 22px; height: 22px; flex-shrink: 0;"></button>
+                <div style="min-width: 0;">
+                  <div class="${e.completed ? 'done' : ''}" style="font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--text);">${escapeHtml(e.title)}</div>
+                  <div class="subtle" style="font-size: 11px; margin-top: 2px;">${escapeHtml(e.time)}</div>
+                </div>
+              </div>
+              <button class="icon-button" data-modal-delete-event="${e.id}" type="button" aria-label="Delete event" style="width: 28px; height: 28px; border: 0; background: transparent; color: var(--muted); flex-shrink: 0; font-size: 14px;">‚úï</button>
+            </div>
+          `).join("");
+        } else {
+          wrapper.style.display = "none";
+          list.innerHTML = "";
+        }
+        
+        modalActionType = "add";
+        document.getElementById("modalTitle").textContent = `Events: ${dateStr}`;
+        modal.classList.remove("hidden");
+      }
+
+      function closeModal() {
+        document.getElementById("customModal").classList.add("hidden");
+      }
+
+      function formatTime(totalSeconds) {
+        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+        const seconds = String(totalSeconds % 60).padStart(2, "0");
+        return `${minutes}:${seconds}`;
+      }
+
+      function addTaskFromForm(form) {
+        const data = new FormData(form);
+        const title = String(data.get("title") || "").trim();
+        const subject = String(data.get("subject") || "").trim();
+        if (!title || !subject) return;
+        state.tasks.push({
+          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+          title,
+          subject,
+          dueDate: String(data.get("dueDate") || ""),
+          priority: String(data.get("priority") || "medium"),
+          status: "todo"
+        });
+        form.reset();
+        saveState();
+        render();
+      }
+
+      function saveCourses(event) {
+        event.preventDefault();
+        const clean = state.courses.map((course) => course.trim()).filter(Boolean);
+        const unique = new Set(clean.map((course) => course.toLowerCase()));
+        const nextSchedule = schedule();
+        const error = document.getElementById("courseError");
+
+        if (clean.length !== 8) {
+          error.textContent = "Please define exactly 8 blocks.";
+          error.classList.remove("hidden");
+          return;
+        }
+
+        if (unique.size !== 8) {
+          error.textContent = "Each block must have a unique name.";
+          error.classList.remove("hidden");
+          return;
+        }
+
+        if (nextSchedule.day1.length !== 4 || nextSchedule.day2.length !== 4) {
+          error.textContent = "Distribute exactly 4 blocks to Day 1 and 4 blocks to Day 2.";
+          error.classList.remove("hidden");
+          return;
+        }
+
+        error.classList.add("hidden");
+        saveState();
+        state.activeView = "dashboard";
+        saveState();
+        render();
+      }
+
+      function logFocusTime() {
+        const todayStr = todayISO();
+        if (!state.timeLogs[todayStr]) {
+          state.timeLogs[todayStr] = { subjects: {}, tasks: {} };
+        }
+        const log = state.timeLogs[todayStr];
+        if (!log.subjects) log.subjects = {};
+        if (!log.tasks) log.tasks = {};
+
+        // Determine subject and task mapping
+        if (state.activeTaskId.startsWith("task:")) {
+          const tid = state.activeTaskId.replace("task:", "");
+          const found = state.tasks.find((t) => t.id === tid);
+          if (found) {
+            log.subjects[found.subject] = (log.subjects[found.subject] || 0) + 1;
+            if (!log.tasks[tid]) {
+              log.tasks[tid] = { title: found.title, subject: found.subject, seconds: 0 };
+            }
+            log.tasks[tid].seconds += 1;
+          }
+        } else if (state.activeTaskId.startsWith("subject:")) {
+          const sub = state.activeTaskId.replace("subject:", "");
+          log.subjects[sub] = (log.subjects[sub] || 0) + 1;
+        } else {
+          log.subjects["General Focus"] = (log.subjects["General Focus"] || 0) + 1;
+        }
+      }
+
+      function startTimer() {
+        if (timerId) clearInterval(timerId);
+        timerId = setInterval(() => {
+          if (!state.timerRunning) return;
+          if (state.secondsLeft > 0) {
+            state.secondsLeft -= 1;
+            if (state.timerMode === "focus") {
+              logFocusTime();
+            }
+          } else {
+            state.timerRunning = false;
+            state.timerMode = state.timerMode === "focus" ? "break" : "focus";
+            state.secondsLeft = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+          }
+          saveState();
+          renderTimer();
+          if (state.activeView === "summary") renderSummary();
+        }, 1000);
+      }
+
+      function resetAllData() {
+        if (!confirm("Are you sure you want to reset all local focus data and logs?")) return;
+        state = { ...defaultState };
+        saveState();
+        render();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      document.addEventListener("click", (event) => {
+        const target = event.target.closest("button");
+        if (!target) return;
+
+        if (target.dataset.viewButton) showView(target.dataset.viewButton);
+
+        if (target.dataset.day) {
+          state.dayType = target.dataset.day;
+          saveState();
+          render();
+        }
+
+        if (target.dataset.courseDay) {
+          const [index, day] = target.dataset.courseDay.split(":");
+          state.courseDays[Number(index)] = day;
+          saveState();
+          renderCourses();
+        }
+
+        if (target.dataset.toggleTask) {
+          const task = state.tasks.find((item) => item.id === target.dataset.toggleTask);
+          if (task) {
+            task.status = task.status === "done" ? "todo" : "done";
+            if (task.status === "done") {
+              task.completedAt = todayISO();
+            } else {
+              delete task.completedAt;
+            }
+          }
+          saveState();
+          render();
+        }
+
+        if (target.dataset.deleteTask) {
+          state.tasks = state.tasks.filter((task) => task.id !== target.dataset.deleteTask);
+          saveState();
+          render();
+        }
+
+        if (target.dataset.timerMode) {
+          state.timerMode = target.dataset.timerMode;
+          state.timerRunning = false;
+          state.secondsLeft = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+          saveState();
+          renderTimer();
+        }
+
+        if (target.dataset.adjustTimer) {
+          const [mode, amountStr] = target.dataset.adjustTimer.split(":");
+          const amount = Number(amountStr);
+          if (mode === "focus") {
+            state.focusDuration = Math.max(5, (state.focusDuration || 25) + amount);
+            if (!state.timerRunning && state.timerMode === "focus") {
+              state.secondsLeft = state.focusDuration * 60;
+            }
+          } else if (mode === "break") {
+            state.breakDuration = Math.max(1, (state.breakDuration || 5) + amount);
+            if (!state.timerRunning && state.timerMode === "break") {
+              state.secondsLeft = state.breakDuration * 60;
+            }
+          }
+          saveState();
+          renderTimer();
+        }
+
+        if (target.id === "timerStartPause") {
+          state.timerRunning = !state.timerRunning;
+          saveState();
+          renderTimer();
+        }
+
+        if (target.id === "timerReset") {
+          state.timerRunning = false;
+          state.secondsLeft = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+          saveState();
+          renderTimer();
+        }
+
+        if (target.dataset.summaryDay) {
+          document.querySelectorAll("[data-summary-day]").forEach(btn => btn.classList.remove("active"));
+          target.classList.add("active");
+          renderSummary();
+        }
+
+        if (target.dataset.calendarDate) {
+          state.selectedDate = target.dataset.calendarDate;
+          saveState();
+          openModalForDate(state.selectedDate);
+        }
+
+        if (target.id === "addEventPromptBtn") {
+          openModalForDate(state.selectedDate);
+        }
+
+        if (target.dataset.toggleEvent) {
+          const ev = state.events.find(item => item.id === target.dataset.toggleEvent);
+          if (ev) ev.completed = !ev.completed;
+          saveState();
+          renderCalendar();
+        }
+
+        if (target.dataset.deleteEvent) {
+          state.events = (state.events || []).filter(item => item.id !== target.dataset.deleteEvent);
+          saveState();
+          renderCalendar();
+        }
+
+        if (target.dataset.modalToggleEvent) {
+          const ev = state.events.find(item => item.id === target.dataset.modalToggleEvent);
+          if (ev) ev.completed = !ev.completed;
+          saveState();
+          openModalForDate(modalTargetDate);
+          renderCalendar();
+        }
+
+        if (target.dataset.modalDeleteEvent) {
+          state.events = (state.events || []).filter(item => item.id !== target.dataset.modalDeleteEvent);
+          saveState();
+          openModalForDate(modalTargetDate);
+          renderCalendar();
+        }
+
+        if (target.dataset.ampm) {
+          document.querySelectorAll("[data-ampm]").forEach(b => b.classList.remove("active"));
+          target.classList.add("active");
+        }
+      });
+
+      document.addEventListener("input", (event) => {
+        const input = event.target;
+        if (input.matches("[data-course-index]")) {
+          state.courses[Number(input.dataset.courseIndex)] = input.value;
+          saveState();
+          updateCourseCounts();
+        }
+      });
+
+      document.getElementById("taskAddForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        addTaskFromForm(event.currentTarget);
+      });
+
+      document.getElementById("courseForm").addEventListener("submit", saveCourses);
+
+      document.getElementById("prevMonth").addEventListener("click", () => {
+        currentMonthDate.setMonth(currentMonthDate.getMonth() - 1);
+        renderCalendar();
+      });
+
+      document.getElementById("nextMonth").addEventListener("click", () => {
+        currentMonthDate.setMonth(currentMonthDate.getMonth() + 1);
+        renderCalendar();
+      });
+
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        state.theme = state.theme === "light" ? "dark" : "light";
+        saveState();
+        render();
+      });
+
+      document.getElementById("settingsReset").addEventListener("click", resetAllData);
+
+      document.getElementById("settingsSyncGen").addEventListener("click", () => {
+        try {
+          const serialized = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+          const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?sync=" + encodeURIComponent(serialized);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(() => {
+              alert("Sync link successfully generated and copied to your clipboard!");
+            }).catch(() => {
+              prompt("Could not copy automatically. Copy this URL manually to sync:", url);
+            });
+          } else {
+            prompt("Copy this URL manually to sync:", url);
+          }
+        } catch (e) {
+          alert("Failed to generate sync link.");
+        }
+      });
+
+      document.getElementById("startSuggested").addEventListener("click", () => {
+        const suggestion = focusSuggestion(dashboardTasks());
+        if (suggestion) state.activeTaskId = `task:${suggestion.id}`;
+        showView("timer");
+      });
+
+      document.getElementById("activeTask").addEventListener("change", (event) => {
+        state.activeTaskId = event.target.value;
+        saveState();
+        renderTimer();
+      });
+
+      document.getElementById("modalConfirmBtn").addEventListener("click", () => {
+        if (modalActionType === "add") {
+          const hour = document.getElementById("modalHour").value;
+          const min = document.getElementById("modalMinute").value;
+          const ampm = document.querySelector("[data-ampm].active")?.dataset.ampm || "AM";
+          const time = `${hour}:${min} ${ampm}`;
+          const title = document.getElementById("modalEventTitle").value.trim() || "Study Block";
+          if (!state.events) state.events = [];
+          state.events.push({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+            title: title,
+            time: time,
+            date: modalTargetDate,
+            completed: false
+          });
+          saveState();
+          
+          const titleInput = document.getElementById("modalEventTitle");
+          if (titleInput) titleInput.value = "";
+          openModalForDate(modalTargetDate);
+          renderCalendar();
+        }
+      });
+
+      document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
+
+      startTimer();
+      render();
+    </script>
+  </body>
+</html>
