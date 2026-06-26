@@ -221,6 +221,12 @@
         }
       }
 
+      @keyframes task-complete {
+        0%   { transform: scale(1); }
+        30%  { transform: scale(1.025); box-shadow: 0 0 0 4px var(--accent-glow); }
+        100% { transform: scale(1); box-shadow: none; }
+      }
+
       .stack {
         display: grid;
         gap: 36px;
@@ -420,8 +426,13 @@
         align-items: center;
       }
 
+      .task-card {
+        transition: border-left-color 0.35s ease, background 0.35s ease, opacity 0.35s ease;
+      }
+
       .task-card.high {
         border-left-color: var(--accent-2);
+        background: color-mix(in srgb, var(--accent-2) 6%, var(--panel));
       }
 
       .task-card.medium {
@@ -430,6 +441,13 @@
 
       .task-card.low {
         border-left-color: var(--line);
+      }
+
+      .task-card.task-completed {
+        border-left-color: var(--accent) !important;
+        background: color-mix(in srgb, var(--accent) 6%, var(--panel)) !important;
+        opacity: 0.75;
+        animation: task-complete 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
       }
 
       .task-card.next {
@@ -1098,6 +1116,7 @@
             </div>
           </div>
         </section>
+
       </main>
     </div>
 
@@ -1218,7 +1237,40 @@
       const hamburgerSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
       const closeSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
+      const defaultState = {
+        activeView: "dashboard",
+        theme: "dark",
+        dayType: "day1",
+        courses: ["", "", "", "", "", "", "", ""],
+        courseDays: ["day1","day1","day1","day1","day2","day2","day2","day2"],
+        tasks: [],
+        events: [],
+        timeLogs: {},
+        timerMode: "focus",
+        timerRunning: false,
+        secondsLeft: 25 * 60,
+        timerExpectedEnd: null,
+        focusDuration: 25,
+        breakDuration: 5,
+        activeTaskId: "none",
+        selectedDate: new Date().toISOString().slice(0, 10),
+      };
 
+      function saveState() {
+        localStorage.setItem(storeKey, JSON.stringify(state));
+        syncPush();
+      }
+
+      function checkUrlImport() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const code = params.get("sync");
+          if (code) {
+            history.replaceState(null, "", window.location.pathname);
+            syncJoinRoom(code);
+          }
+        } catch(e) {}
+      }
 
       let state = loadState();
       checkUrlImport();
@@ -1967,7 +2019,6 @@
       document.addEventListener("click", async (event) => {
         const target = event.target.closest("button");
         if (!target) return;
-        }
 
         if (target.dataset.viewButton) showView(target.dataset.viewButton);
 
@@ -2141,7 +2192,6 @@
       });
 
       document.getElementById("settingsReset").addEventListener("click", resetAllData);
-
       // -- Real-time Firebase Sync ----------------------------------
       const FIREBASE_URL = "https://ib-focus-os-default-rtdb.firebaseio.com";
       let syncRoomCode = localStorage.getItem("syncRoomCode") || null;
