@@ -995,9 +995,9 @@
               <button class="secondary-button" id="timerReset" type="button">Reset</button>
             </div>
             <div class="panel" style="text-align: left;">
-              <label for="activeTask">Active Focus Target</label>
+              <label for="activeTask">Focusing on task</label>
               <select id="activeTask" style="margin-top: 8px;"></select>
-              <p class="subtle" id="activeTaskText" style="margin-top: 10px;">Select a subject or task to log focus metrics.</p>
+              <p class="subtle" id="activeTaskText" style="margin-top: 10px;">Select a task to start the timer.</p>
             </div>
           </div>
         </section>
@@ -1560,34 +1560,41 @@
         });
 
         const taskSelect = document.getElementById("activeTask");
-        const activeTasksHtml = state.tasks
-          .filter((task) => task.status === "todo")
-          .map((task) => {
+        const todoTasks = state.tasks.filter((task) => task.status === "todo");
+
+        if (todoTasks.length === 0) {
+          taskSelect.innerHTML = `<option value="">No tasks yet - go add one first</option>`;
+          taskSelect.disabled = true;
+          document.getElementById("timerStartPause").disabled = true;
+          document.getElementById("timerStartPause").style.opacity = "0.4";
+          document.getElementById("activeTaskText").textContent = "Add a task in the Tasks tab to start focusing.";
+        } else {
+          taskSelect.disabled = false;
+          const activeTasksHtml = todoTasks.map((task) => {
             const val = `task:${task.id}`;
-            return `<option value="${val}" ${val === state.activeTaskId ? "selected" : ""}>Task: ${escapeHtml(task.title)} (${escapeHtml(task.subject)})</option>`;
+            return `<option value="${val}" ${val === state.activeTaskId ? "selected" : ""}>${escapeHtml(task.title)} - ${escapeHtml(task.subject)}</option>`;
           }).join("");
+          taskSelect.innerHTML = `<option value="">Select a task...</option>${activeTasksHtml}`;
 
-        const subjectsHtml = visibleCourses().map((sub) => {
-          const val = `subject:${sub}`;
-          return `<option value="${val}" ${val === state.activeTaskId ? "selected" : ""}>Subject: ${escapeHtml(sub)}</option>`;
-        }).join("");
+          // If saved activeTaskId no longer exists in todo tasks, clear it
+          const validIds = todoTasks.map(t => `task:${t.id}`);
+          if (state.activeTaskId && !validIds.includes(state.activeTaskId)) {
+            state.activeTaskId = "";
+          }
+          if (state.activeTaskId) taskSelect.value = state.activeTaskId;
 
-        taskSelect.innerHTML = `
-          <option value="">General Focus (Uncategorized)</option>
-          <optgroup label="Your Tasks">${activeTasksHtml}</optgroup>
-          <optgroup label="Subjects Only">${subjectsHtml}</optgroup>
-        `;
-
-        let displayStr = "General study session focus.";
-        if (state.activeTaskId.startsWith("task:")) {
-          const tid = state.activeTaskId.replace("task:", "");
-          const found = state.tasks.find((t) => t.id === tid);
-          if (found) displayStr = `Working on: ${found.title} (${found.subject})`;
-        } else if (state.activeTaskId.startsWith("subject:")) {
-          const sub = state.activeTaskId.replace("subject:", "");
-          displayStr = `Focusing on: ${sub}`;
+          const startBtn = document.getElementById("timerStartPause");
+          if (!state.activeTaskId) {
+            startBtn.disabled = true;
+            startBtn.style.opacity = "0.4";
+            document.getElementById("activeTaskText").textContent = "Select a task to start the timer.";
+          } else {
+            startBtn.disabled = false;
+            startBtn.style.opacity = "";
+            const found = state.tasks.find(t => `task:${t.id}` === state.activeTaskId);
+            if (found) document.getElementById("activeTaskText").textContent = `Working on: ${found.title} (${found.subject})`;
+          }
         }
-        document.getElementById("activeTaskText").textContent = displayStr;
       }
 
       function getWeekDates() {
@@ -1922,7 +1929,6 @@
         if (!log.subjects) log.subjects = {};
         if (!log.tasks) log.tasks = {};
 
-        // Determine subject and task mapping
         if (state.activeTaskId.startsWith("task:")) {
           const tid = state.activeTaskId.replace("task:", "");
           const found = state.tasks.find((t) => t.id === tid);
@@ -1933,11 +1939,6 @@
             }
             log.tasks[tid].seconds += 1;
           }
-        } else if (state.activeTaskId.startsWith("subject:")) {
-          const sub = state.activeTaskId.replace("subject:", "");
-          log.subjects[sub] = (log.subjects[sub] || 0) + 1;
-        } else {
-          log.subjects["General Focus"] = (log.subjects["General Focus"] || 0) + 1;
         }
       }
 
