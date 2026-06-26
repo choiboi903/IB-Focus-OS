@@ -791,6 +791,66 @@
     </style>
   </head>
   <body>
+    <!-- Onboarding Overlay -->
+    <div id="onboardingOverlay" style="display:none; position:fixed; inset:0; z-index:9999; background:var(--bg); overflow-y:auto; padding: 40px 20px;">
+      <div style="max-width:480px; margin:0 auto; display:flex; flex-direction:column; gap:28px; min-height:100%;">
+        <div style="text-align:center; padding-top: 20px;">
+          <p class="brand" style="font-size:13px; margin-bottom:8px;">IB Focus OS</p>
+          <h1 style="font-size:28px; margin-bottom:10px;">Welcome</h1>
+          <p class="subtle">How do you want to get started?</p>
+        </div>
+
+        <!-- Option 1: Set up courses -->
+        <div class="panel" id="onboardCourseOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardCourseOption').style.borderColor='var(--accent)'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardCoursePanel').style.display='flex'; document.getElementById('onboardRoomPanel').style.display='none';">
+          <div style="display:flex; align-items:center; gap:14px; margin-bottom:4px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:15px;">Set up my courses</div>
+              <div class="subtle" style="font-size:13px;">Enter your 8 course blocks to get started</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Course entry panel -->
+        <div id="onboardCoursePanel" style="display:none; flex-direction:column; gap:12px;">
+          <div id="onboardCourseRows" style="display:flex; flex-direction:column; gap:8px;"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:4px;">
+            <div class="panel" style="text-align:center;">
+              <div style="font-size:12px; color:var(--muted); margin-bottom:2px;">Day 1</div>
+              <div style="font-weight:700; font-size:18px; color:var(--accent);" id="onboardDay1Count">0/4</div>
+            </div>
+            <div class="panel" style="text-align:center;">
+              <div style="font-size:12px; color:var(--muted); margin-bottom:2px;">Day 2</div>
+              <div style="font-weight:700; font-size:18px; color:var(--accent);" id="onboardDay2Count">0/4</div>
+            </div>
+          </div>
+          <p class="error hidden" id="onboardCourseError"></p>
+          <button class="primary-button" id="onboardSaveBtn" type="button" style="background:var(--accent);color:var(--bg);">Save &amp; Continue</button>
+        </div>
+
+        <!-- Option 2: Join room -->
+        <div class="panel" id="onboardRoomOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardRoomOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardRoomPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none';">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round"><path d="M8 17l-3 3-3-3M5 20V4"/><path d="M16 7l3-3 3 3M19 4v16"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:15px;">Join a sync room</div>
+              <div class="subtle" style="font-size:13px;">Already set up on another device? Enter your code</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room join panel -->
+        <div id="onboardRoomPanel" style="display:none; flex-direction:column; gap:10px;">
+          <input id="onboardRoomCode" type="text" maxlength="8" placeholder="Enter room code" style="padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:18px;letter-spacing:3px;text-transform:uppercase;outline:0;width:100%;box-sizing:border-box;text-align:center;" />
+          <button class="primary-button" id="onboardJoinBtn" type="button" style="background:var(--accent);color:var(--bg);">Join Room &amp; Sync</button>
+        </div>
+      </div>
+    </div>
+
     <div class="app">
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -1254,7 +1314,7 @@
 
       function hasSetup() {
         const clean = state.courses.map((course) => course.trim()).filter(Boolean);
-        return clean.length === 8 && schedule().day1.length === 4 && schedule().day2.length === 4;
+        return (clean.length === 8 && schedule().day1.length === 4 && schedule().day2.length === 4) || !!localStorage.getItem("syncRoomCode");
       }
 
       function schedule() {
@@ -2306,6 +2366,88 @@
       });
 
       startTimer();
+
+      // -- Onboarding --------------------------------------------------
+      (function initOnboarding() {
+        if (hasSetup()) return; // already good, skip
+
+        const overlay = document.getElementById("onboardingOverlay");
+        overlay.style.display = "block";
+        document.documentElement.dataset.theme = state.theme;
+
+        // Build the 8 course input rows inside the onboarding panel
+        const rowsEl = document.getElementById("onboardCourseRows");
+        const tempCourses = ["","","","","","","",""];
+        const tempDays = [...state.courseDays];
+
+        function updateOnboardCounts() {
+          let d1 = 0, d2 = 0;
+          tempDays.forEach((d, i) => { if (tempCourses[i].trim()) { if (d === "day1") d1++; else d2++; } });
+          document.getElementById("onboardDay1Count").textContent = d1 + "/4";
+          document.getElementById("onboardDay2Count").textContent = d2 + "/4";
+        }
+
+        rowsEl.innerHTML = tempCourses.map((_, i) => `
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" data-ob-course="${i}" placeholder="Course ${i+1}" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-strong);color:var(--text);font-size:14px;outline:0;" />
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              <button type="button" data-ob-day="${i}" data-ob-val="day1" style="padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:${tempDays[i]==='day1'?'var(--accent)':'var(--panel-strong)'};color:${tempDays[i]==='day1'?'var(--bg)':'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;">D1</button>
+              <button type="button" data-ob-day="${i}" data-ob-val="day2" style="padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:${tempDays[i]==='day2'?'var(--accent)':'var(--panel-strong)'};color:${tempDays[i]==='day2'?'var(--bg)':'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;">D2</button>
+            </div>
+          </div>
+        `).join("");
+
+        rowsEl.querySelectorAll("[data-ob-course]").forEach(input => {
+          input.addEventListener("input", () => {
+            tempCourses[Number(input.dataset.obCourse)] = input.value;
+            updateOnboardCounts();
+          });
+        });
+
+        rowsEl.addEventListener("click", e => {
+          const btn = e.target.closest("[data-ob-day]");
+          if (!btn) return;
+          const idx = Number(btn.dataset.obDay);
+          const val = btn.dataset.obVal;
+          tempDays[idx] = val;
+          rowsEl.querySelectorAll(`[data-ob-day="${idx}"]`).forEach(b => {
+            const active = b.dataset.obVal === val;
+            b.style.background = active ? "var(--accent)" : "var(--panel-strong)";
+            b.style.color = active ? "var(--bg)" : "var(--text)";
+          });
+          updateOnboardCounts();
+        });
+
+        document.getElementById("onboardSaveBtn").addEventListener("click", () => {
+          const errEl = document.getElementById("onboardCourseError");
+          const filled = tempCourses.filter(c => c.trim());
+          const d1 = tempDays.filter((d,i) => tempCourses[i].trim() && d === "day1").length;
+          const d2 = tempDays.filter((d,i) => tempCourses[i].trim() && d === "day2").length;
+          if (filled.length < 8) { errEl.textContent = "Please fill in all 8 courses."; errEl.classList.remove("hidden"); return; }
+          if (d1 !== 4 || d2 !== 4) { errEl.textContent = "Assign exactly 4 courses to Day 1 and 4 to Day 2."; errEl.classList.remove("hidden"); return; }
+          errEl.classList.add("hidden");
+          state.courses = [...tempCourses];
+          state.courseDays = [...tempDays];
+          saveState();
+          overlay.style.display = "none";
+          render();
+        });
+
+        document.getElementById("onboardJoinBtn").addEventListener("click", async () => {
+          const code = document.getElementById("onboardRoomCode").value.trim().toUpperCase();
+          if (!code) { return; }
+          overlay.style.display = "none";
+          await syncJoinRoom(code);
+          render();
+        });
+
+        document.getElementById("onboardRoomCode").addEventListener("keydown", e => {
+          if (e.key === "Enter") document.getElementById("onboardJoinBtn").click();
+        });
+
+        updateOnboardCounts();
+      })();
+
       render();
     </script>
   </body>
