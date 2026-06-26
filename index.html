@@ -13,6 +13,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("./sw.js")
+            .then(reg => console.log("Service Worker registered!", reg))
+            .catch(err => console.error("Service Worker registration failed:", err));
+        });
+      }
+    </script>
     <style>
       :root {
         color-scheme: light;
@@ -103,6 +112,46 @@
         flex-direction: column;
         justify-content: space-between;
         z-index: 100;
+      }
+
+      /* Guardian Mode Restrictions */
+      body.guardian-mode #onboardCourseOption,
+      body.guardian-mode #onboardRoomOption,
+      body.guardian-mode #onboardCoursePanel,
+      body.guardian-mode #onboardRoomPanel,
+      body.guardian-mode #taskAddForm,
+      body.guardian-mode #editCoursesBtn,
+      body.guardian-mode #courseForm button[type="submit"],
+      body.guardian-mode #addEventPromptBtn,
+      body.guardian-mode .check-button,
+      body.guardian-mode .task-card .icon-button,
+      body.guardian-mode #calendarEventsList .task-card .icon-button,
+      body.guardian-mode #timerStartPause,
+      body.guardian-mode #timerReset,
+      body.guardian-mode [data-adjust-timer],
+      body.guardian-mode #settingsSyncCreate,
+      body.guardian-mode #syncLeaveBtn,
+      body.guardian-mode #settingsReset,
+      body.guardian-mode #settingsRegenPinBtn,
+      body.guardian-mode [data-ob-day] {
+        display: none !important;
+      }
+
+      body.guardian-mode .course-row input {
+        pointer-events: none !important;
+        opacity: 0.85;
+      }
+
+      body.guardian-mode select,
+      body.guardian-mode input {
+        pointer-events: none !important;
+      }
+
+      body.guardian-mode #settingsSyncJoinCode,
+      body.guardian-mode #settingsSyncJoinBtn,
+      body.guardian-mode #settingsSyncJoinPin,
+      body.guardian-mode #settingsSyncJoinPinBtn {
+        pointer-events: auto !important;
       }
 
       .brand-group {
@@ -1073,13 +1122,29 @@
                 <button class="primary-button" id="settingsSyncCreate" type="button" style="background: var(--accent); color: var(--bg);">Create Sync Room</button>
                 <div style="border-top: 1px solid var(--line); margin-top: 4px; padding-top: 14px;">
                   <label for="settingsSyncJoinCode" style="display: block; margin-bottom: 8px; font-size: 13px;">Already have a code? Join a room:</label>
-                  <div style="display:flex;gap:8px;">
+                  <div style="display:flex;gap:8px;margin-bottom:12px;">
                     <input id="settingsSyncJoinCode" type="text" maxlength="8" placeholder="Enter room code" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:15px;letter-spacing:2px;text-transform:uppercase;outline:0;" />
                     <button class="secondary-button" id="settingsSyncJoinBtn" type="button" style="font-weight:600;white-space:nowrap;">Join</button>
+                  </div>
+                  
+                  <label for="settingsSyncJoinPin" style="display: block; margin-bottom: 8px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px;">Parents/Guardians: Join with 4-Digit PIN:</label>
+                  <div style="display:flex;gap:8px;">
+                    <input id="settingsSyncJoinPin" type="text" maxlength="4" placeholder="4-digit PIN" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:15px;letter-spacing:4px;text-align:center;outline:0;" />
+                    <button class="secondary-button" id="settingsSyncJoinPinBtn" type="button" style="font-weight:600;white-space:nowrap;">Join View-Only</button>
                   </div>
                 </div>
               </div>
             </div>
+            
+            <div class="panel section" id="settingsGuardianPanel">
+              <h2>Guardian Monitoring</h2>
+              <p class="subtle">Provide this PIN to your parents. They can enter it to view your live progress without edit permissions.</p>
+              <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
+                <div id="settingsGuardianPinCode" style="font-size:24px; font-weight:700; font-family:monospace; color:var(--accent); letter-spacing:4px; background:var(--soft); padding:8px 16px; border-radius:8px;">----</div>
+                <button class="secondary-button" id="settingsRegenPinBtn" type="button" style="font-size:13px; min-height:36px; padding:6px 12px;">Regenerate PIN</button>
+              </div>
+            </div>
+
             <div class="panel section">
               <h2>Data Management</h2>
               <p class="subtle">Completely wipe local configuration and focus logs.</p>
@@ -1222,10 +1287,14 @@
         timerRunning: false,
         timeLogs: {}, // Keyed by YYYY-MM-DD: { subjects: {}, tasks: {} }
         events: [],
-        selectedDate: todayISO(0)
+        selectedDate: todayISO(0),
+        guardianPin: ""
       };
 
+      let isGuardianMode = localStorage.getItem("isGuardianMode") === "true";
+
       function saveState() {
+        if (isGuardianMode) return; // Prevent local saves by guardian
         localStorage.setItem(storeKey, JSON.stringify(state));
         syncPush();
       }
@@ -1378,7 +1447,27 @@
       function render() {
         document.documentElement.dataset.theme = state.theme;
         document.getElementById("themeToggle").innerHTML = state.theme === "light" ? moonSvg : sunSvg;
-        if (!hasSetup()) state.activeView = "courses";
+        if (!hasSetup() && !isGuardianMode) state.activeView = "courses";
+
+        if (isGuardianMode) {
+          document.body.classList.add("guardian-mode");
+          const syncStatusText = document.getElementById("syncStatusText");
+          if (syncStatusText && syncStatusText.textContent.includes("syncing")) {
+            syncStatusText.textContent = "Live - View-Only (Guardian)";
+          }
+        } else {
+          document.body.classList.remove("guardian-mode");
+        }
+
+        // Render guardian PIN in Settings
+        const pinCodeEl = document.getElementById("settingsGuardianPinCode");
+        if (pinCodeEl) {
+          if (!state.guardianPin) {
+            state.guardianPin = String(Math.floor(1000 + Math.random() * 9000));
+            saveState();
+          }
+          pinCodeEl.textContent = state.guardianPin;
+        }
 
         document.querySelectorAll(".view").forEach((view) => {
           view.classList.toggle("active", view.id === viewNameToId(state.activeView));
@@ -2202,11 +2291,19 @@
       }
 
       function syncPush() {
-        if (!syncRoomCode) return;
+        if (!syncRoomCode || isGuardianMode) return;
         clearTimeout(syncPushTimer);
         syncPushTimer = setTimeout(async () => {
           try {
             syncIgnoreNext = true;
+            // Also store the pin-to-room mapping if PIN is set
+            if (state.guardianPin) {
+              await fetch(`${FIREBASE_URL}/pins/${state.guardianPin}.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(syncRoomCode)
+              });
+            }
             await fetch(`${FIREBASE_URL}/rooms/${syncRoomCode}/state.json`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -2250,13 +2347,17 @@
           const dot = document.getElementById("syncStatusDot");
           const txt = document.getElementById("syncStatusText");
           if (dot) dot.style.background = "#22c55e";
-          if (txt) txt.textContent = "Live - syncing";
+          if (txt) txt.textContent = isGuardianMode ? "Live - View-Only (Guardian)" : "Live - syncing";
         };
       }
 
-      async function syncJoinRoom(code) {
+      async function syncJoinRoom(code, guardian = false) {
         code = code.toUpperCase().trim();
         if (!code) return;
+        
+        isGuardianMode = guardian;
+        localStorage.setItem("isGuardianMode", guardian ? "true" : "false");
+        
         // Pull existing data first
         try {
           const res = await fetch(`${FIREBASE_URL}/rooms/${code}/state.json`);
@@ -2273,15 +2374,41 @@
         syncSetStatus(true, code);
       }
 
+      async function syncJoinByPin(pin) {
+        pin = pin.trim();
+        if (!pin || pin.length !== 4) { showModal("Please enter a valid 4-digit PIN."); return; }
+        try {
+          const res = await fetch(`${FIREBASE_URL}/pins/${pin}.json`);
+          const targetRoom = await res.json();
+          if (targetRoom && typeof targetRoom === "string") {
+            await syncJoinRoom(targetRoom, true);
+            showModal("Guardian Mode Activated", "You have joined the sync room in view-only Guardian Mode.");
+          } else {
+            showModal("Invalid PIN", "Could not find a room associated with this PIN. Make sure the user has generated this PIN in their settings and has internet access.");
+          }
+        } catch (e) {
+          showModal("Failed to Connect", "There was an error looking up the PIN. Check your connection.");
+        }
+      }
+
       async function syncCreateRoom() {
         const code = syncGenerateCode();
         try {
+          if (state.guardianPin) {
+            await fetch(`${FIREBASE_URL}/pins/${state.guardianPin}.json`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(code)
+            });
+          }
           await fetch(`${FIREBASE_URL}/rooms/${code}/state.json`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(state)
           });
         } catch (e) { console.warn("Could not push to new room", e); }
+        isGuardianMode = false;
+        localStorage.setItem("isGuardianMode", "false");
         syncRoomCode = code;
         localStorage.setItem("syncRoomCode", code);
         syncListen(code);
@@ -2295,13 +2422,16 @@
       function syncLeave() {
         if (syncEventSource) { syncEventSource.close(); syncEventSource = null; }
         syncRoomCode = null;
+        isGuardianMode = false;
         localStorage.removeItem("syncRoomCode");
+        localStorage.removeItem("isGuardianMode");
         syncSetStatus(false, null);
+        render();
       }
 
       // Auto-rejoin room on page load
       if (syncRoomCode) {
-        syncJoinRoom(syncRoomCode);
+        syncJoinRoom(syncRoomCode, isGuardianMode);
       }
 
       document.getElementById("settingsSyncCreate").addEventListener("click", syncCreateRoom);
@@ -2309,11 +2439,26 @@
       document.getElementById("settingsSyncJoinBtn").addEventListener("click", () => {
         const code = document.getElementById("settingsSyncJoinCode").value.trim();
         if (!code) { showModal("Enter a room code first."); return; }
-        syncJoinRoom(code);
+        syncJoinRoom(code, false);
       });
 
       document.getElementById("settingsSyncJoinCode").addEventListener("keydown", (e) => {
         if (e.key === "Enter") document.getElementById("settingsSyncJoinBtn").click();
+      });
+
+      document.getElementById("settingsSyncJoinPinBtn").addEventListener("click", () => {
+        const pin = document.getElementById("settingsSyncJoinPin").value.trim();
+        syncJoinByPin(pin);
+      });
+
+      document.getElementById("settingsSyncJoinPin").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("settingsSyncJoinPinBtn").click();
+      });
+
+      document.getElementById("settingsRegenPinBtn").addEventListener("click", () => {
+        state.guardianPin = String(Math.floor(1000 + Math.random() * 9000));
+        saveState();
+        render();
       });
 
       document.getElementById("syncLeaveBtn").addEventListener("click", syncLeave);
