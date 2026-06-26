@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxODAgMTgwJz48cmVjdCB3aWR0aD0nMTgwJyBoZWlnaHQ9JzE4MCcgcng9JzQwJyBmaWxsPScjM2E1YTQwJy8+PGNpcmNsZSBjeD0nOTAnIGN5PSc5MCcgcj0nNTAnIGZpbGw9J25vbmUnIHN0cm9rZT0nI2Y1ZjRmMCcgc3Ryb2tlLXdpZHRoPSc2Jy8+PHBhdGggZD0nTTkwIDY1IEw5MCA5MCBMMTA1IDEwNScgc3Ryb2tlPScjZjVmNGYwJyBzdHJva2Utd2lkdGg9JzYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgZmlsbD0nbm9uZScvPjwvc3ZnPg==" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxODAgMTgwJz48cmVjdCB3aWR0aD0nMTgwJyBoZWlnaHQ9JzE4MCcgcng9JzQwJyBmaWxsPScjM2E1YTQwJy8+PGNpcmNsZSBjeD0nOTAnIGN5PSc5MCcgcj0nNTAnIGZpbGw9J25vbmUnIHN0cm9rZT0nI2Y1ZjRmMCcgc3Ryb2tlLXdpZHRoPSc2Jy8+PHBhdGggZD0nTTkwIDY1IEw5MCA5MCBMMTA1IDEwNScgc3Ryb2tlPScjZjVmNGYwJyBzdHJva2Utd2lkdGg9JzYnIHN0cm9rZS1saW5lY2FwPSdyb3VuZCcgc3Ryb2tlLWxpbmVqb2luPSdyb3VuZCcgZmlsbD0nbm9uZScvPjwvc3ZnPg==" />
     <title>IB Focus OS</title>
     <!-- Premium Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -686,6 +688,10 @@
           display: block;
         }
 
+        input, select, textarea {
+          font-size: 16px !important;
+        }
+
         .sidebar {
           width: 100%;
           min-height: auto;
@@ -789,7 +795,9 @@
             <p class="brand">IB Focus OS</p>
             <p class="subtle">Sleek daily workflow</p>
           </div>
-          <button id="menuToggleButton" class="icon-button" type="button" aria-label="Toggle menu" style="display: none; width: 40px; height: 40px; border: 0; background: transparent; font-size: 24px; color: var(--text);">‚ò∞</button>
+          <button id="menuToggleButton" class="icon-button" type="button" aria-label="Toggle menu" style="display: none; width: 40px; height: 40px; border: 0; background: transparent; color: var(--text); padding: 0; align-items: center; justify-content: center;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
         </div>
         <div class="sidebar-menu-content" id="sidebarMenuContent" style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; width: 100%;">
           <nav class="nav" aria-label="Main navigation" style="margin-top: 20px;">
@@ -802,7 +810,7 @@
             <button data-view-button="settings" type="button">Settings</button>
           </nav>
           <div class="sidebar-bottom" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; width: 100%;">
-            <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">‚òº</button>
+            <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme" style="padding: 0; display: flex; align-items: center; justify-content: center;"></button>
           </div>
         </div>
       </aside>
@@ -939,8 +947,12 @@
               <div class="top-row">
                 <h1 id="calendarMonthTitle">June 2026</h1>
                 <div class="segmented">
-                  <button id="prevMonth" type="button">‚óÄ</button>
-                  <button id="nextMonth" type="button">‚ñ∂</button>
+                  <button id="prevMonth" type="button" style="padding: 0 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <button id="nextMonth" type="button" style="padding: 0 12px; display: flex; align-items: center; justify-content: center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
                 </div>
               </div>
               <div class="calendar-container" id="calendarGrid"></div>
@@ -1024,7 +1036,7 @@
         <!-- Add Event Time Input and Event Name -->
         <div id="modalAddControls" style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
           <h3 style="font-size: 13px; text-align: left; margin-bottom: 2px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Add New Event</h3>
-          <input type="text" id="modalEventTitle" placeholder="Event Name (e.g. English Prep)" style="font-size: 15px; min-height: 40px; padding: 10px;" required />
+          <input type="text" id="modalEventTitle" placeholder="Enter event name" style="font-size: 15px; min-height: 40px; padding: 10px;" required />
           <div style="display: flex; justify-content: center; gap: 8px; align-items: center; width: 100%;">
             <select id="modalHour" style="width: 76px; text-align: center; font-size: 16px; font-weight: 600; min-height: 40px; padding: 6px;">
               <option value="12">12</option>
@@ -1069,6 +1081,29 @@
       </div>
     </div>
 
+    <!-- Premium Confirm Modal Overlay -->
+    <div id="confirmModal" class="modal-overlay hidden" style="z-index: 1100;">
+      <div class="panel modal-content" style="
+        width: min(320px, 95%);
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        box-shadow: var(--shadow);
+        background: var(--panel-strong);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        text-align: center;
+      ">
+        <h2 style="font-size: 18px; font-weight: 700; margin: 0; color: var(--text);">Are you sure?</h2>
+        <p class="subtle" id="confirmModalMessage" style="font-size: 14px; margin: 0; line-height: 1.5;"></p>
+        <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+          <button class="secondary-button" id="confirmModalCancelBtn" type="button" style="flex: 1; min-height: 40px; border-radius: 10px; font-size: 14px;">Cancel</button>
+          <button class="primary-button" id="confirmModalConfirmBtn" type="button" style="flex: 1; min-height: 40px; border-radius: 10px; font-size: 14px; background: #b42318; color: white;">Confirm</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       window.addEventListener("error", (e) => {
         const div = document.createElement("div");
@@ -1088,6 +1123,11 @@
       const storeKey = "ib-focus-os-local";
       const focusSeconds = 25 * 60;
       const breakSeconds = 5 * 60;
+
+      const sunSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`;
+      const moonSvg = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
+      const hamburgerSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
+      const closeSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
       const defaultState = {
         theme: "light",
@@ -1132,6 +1172,31 @@
 
       let state = loadState();
       checkUrlImport();
+
+      let lastTickTimestamp = Date.now();
+
+      function initBackgroundTimer() {
+        if (state.timerRunning && state.timerExpectedEnd) {
+          const now = Date.now();
+          if (now < state.timerExpectedEnd) {
+            state.secondsLeft = Math.max(0, Math.round((state.timerExpectedEnd - now) / 1000));
+            lastTickTimestamp = now;
+          } else {
+            if (state.timerMode === "focus") {
+              const remaining = state.secondsLeft;
+              for (let i = 0; i < remaining; i++) {
+                logFocusTime();
+              }
+            }
+            state.timerRunning = false;
+            state.timerMode = state.timerMode === "focus" ? "break" : "focus";
+            state.secondsLeft = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+            saveState();
+          }
+        }
+      }
+
+      initBackgroundTimer();
 
       let timerId = null;
       let currentMonthDate = new Date();
@@ -1226,14 +1291,14 @@
         if (sidebar && sidebar.classList.contains("menu-open")) {
           sidebar.classList.remove("menu-open");
           const toggleBtn = document.getElementById("menuToggleButton");
-          if (toggleBtn) toggleBtn.textContent = "‚ò∞";
+          if (toggleBtn) toggleBtn.innerHTML = hamburgerSvg;
         }
         render();
       }
 
       function render() {
         document.documentElement.dataset.theme = state.theme;
-        document.getElementById("themeToggle").textContent = state.theme === "light" ? "‚òæ" : "‚òº";
+        document.getElementById("themeToggle").innerHTML = state.theme === "light" ? moonSvg : sunSvg;
         if (!hasSetup()) state.activeView = "courses";
 
         document.querySelectorAll(".view").forEach((view) => {
@@ -1341,19 +1406,22 @@
         document.getElementById("day2Count").textContent = `${nextSchedule.day2.length} of 4 blocks`;
       }
 
+      let coursesEditing = false;
+
       function renderCourses() {
         document.getElementById("courseRows").innerHTML = state.courses
           .map(
             (course, index) => {
               const isDay1 = index < 4;
               const blockNum = isDay1 ? (index + 1) : (index - 3);
-              const labelText = `Day ${isDay1 ? 1 : 2} ‚Äî Block ${blockNum}`;
+              const labelText = `Day ${isDay1 ? 1 : 2} - Block ${blockNum}`;
               const placeholderText = `Enter Day ${isDay1 ? 1 : 2} Block ${blockNum} class`;
+              const disabledAttr = coursesEditing ? "" : "readonly style='opacity: 0.85; cursor: not-allowed;'";
               return `
                 <div class="course-row panel">
                   <label style="flex: 1;">
                     ${labelText}
-                    <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="${placeholderText}" required />
+                    <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="${placeholderText}" required ${disabledAttr} />
                   </label>
                 </div>
               `;
@@ -1362,6 +1430,34 @@
           .join("");
 
         updateCourseCounts();
+
+        const form = document.getElementById("courseForm");
+        const submitBtn = form.querySelector("button[type='submit']");
+        let editBtn = document.getElementById("editCoursesBtn");
+        
+        if (!editBtn) {
+          editBtn = document.createElement("button");
+          editBtn.id = "editCoursesBtn";
+          editBtn.type = "button";
+          editBtn.className = "primary-button";
+          editBtn.textContent = "Edit Cycle Structure";
+          editBtn.style.background = "var(--accent)";
+          editBtn.style.color = "var(--bg)";
+          submitBtn.parentNode.insertBefore(editBtn, submitBtn);
+          
+          editBtn.addEventListener("click", () => {
+            coursesEditing = true;
+            renderCourses();
+          });
+        }
+        
+        if (coursesEditing) {
+          editBtn.classList.add("hidden");
+          submitBtn.classList.remove("hidden");
+        } else {
+          editBtn.classList.remove("hidden");
+          submitBtn.classList.add("hidden");
+        }
       }
 
       function renderTimer() {
@@ -1657,6 +1753,30 @@
         document.getElementById("customModal").classList.add("hidden");
       }
 
+      let confirmPromiseResolve = null;
+
+      function showConfirm(message, confirmText = "Delete", confirmColor = "#b42318") {
+        document.getElementById("confirmModalMessage").textContent = message;
+        const confirmBtn = document.getElementById("confirmModalConfirmBtn");
+        confirmBtn.textContent = confirmText;
+        confirmBtn.style.background = confirmColor;
+        confirmBtn.style.color = "white";
+        
+        document.getElementById("confirmModal").classList.remove("hidden");
+        
+        return new Promise((resolve) => {
+          confirmPromiseResolve = resolve;
+        });
+      }
+
+      function closeConfirm(value) {
+        document.getElementById("confirmModal").classList.add("hidden");
+        if (confirmPromiseResolve) {
+          confirmPromiseResolve(value);
+          confirmPromiseResolve = null;
+        }
+      }
+
       function formatTime(totalSeconds) {
         const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
         const seconds = String(totalSeconds % 60).padStart(2, "0");
@@ -1707,6 +1827,7 @@
         }
 
         error.classList.add("hidden");
+        coursesEditing = false;
         saveState();
         state.activeView = "dashboard";
         saveState();
@@ -1745,15 +1866,29 @@
         if (timerId) clearInterval(timerId);
         timerId = setInterval(() => {
           if (!state.timerRunning) return;
-          if (state.secondsLeft > 0) {
-            state.secondsLeft -= 1;
-            if (state.timerMode === "focus") {
-              logFocusTime();
+          
+          const now = Date.now();
+          if (now < state.timerExpectedEnd) {
+            const calculatedLeft = Math.max(0, Math.round((state.timerExpectedEnd - now) / 1000));
+            const elapsedSinceLastTick = Math.max(0, Math.round((now - lastTickTimestamp) / 1000));
+            if (elapsedSinceLastTick > 0 && state.timerMode === "focus") {
+              for (let i = 0; i < elapsedSinceLastTick; i++) {
+                logFocusTime();
+              }
             }
+            state.secondsLeft = calculatedLeft;
+            lastTickTimestamp = now;
           } else {
+            if (state.timerMode === "focus") {
+              const elapsedRemaining = Math.max(0, Math.round((state.timerExpectedEnd - lastTickTimestamp) / 1000));
+              for (let i = 0; i < elapsedRemaining; i++) {
+                logFocusTime();
+              }
+            }
             state.timerRunning = false;
             state.timerMode = state.timerMode === "focus" ? "break" : "focus";
             state.secondsLeft = state.timerMode === "focus" ? getFocusSeconds() : getBreakSeconds();
+            lastTickTimestamp = Date.now();
           }
           saveState();
           renderTimer();
@@ -1761,11 +1896,13 @@
         }, 1000);
       }
 
-      function resetAllData() {
-        if (!confirm("Are you sure you want to reset all local focus data and logs?")) return;
-        state = { ...defaultState };
-        saveState();
-        render();
+      async function resetAllData() {
+        const confirmed = await showConfirm("Are you sure you want to reset all local focus data and logs?", "Reset");
+        if (confirmed) {
+          state = { ...defaultState };
+          saveState();
+          render();
+        }
       }
 
       function escapeHtml(value) {
@@ -1777,7 +1914,7 @@
           .replaceAll("'", "&#039;");
       }
 
-      document.addEventListener("click", (event) => {
+      document.addEventListener("click", async (event) => {
         const target = event.target.closest("button");
         if (!target) return;
 
@@ -1811,9 +1948,12 @@
         }
 
         if (target.dataset.deleteTask) {
-          state.tasks = state.tasks.filter((task) => task.id !== target.dataset.deleteTask);
-          saveState();
-          render();
+          const confirmed = await showConfirm("Are you sure you want to delete this task?");
+          if (confirmed) {
+            state.tasks = state.tasks.filter((task) => task.id !== target.dataset.deleteTask);
+            saveState();
+            render();
+          }
         }
 
         if (target.dataset.timerMode) {
@@ -1844,6 +1984,10 @@
 
         if (target.id === "timerStartPause") {
           state.timerRunning = !state.timerRunning;
+          if (state.timerRunning) {
+            state.timerExpectedEnd = Date.now() + (state.secondsLeft * 1000);
+            lastTickTimestamp = Date.now();
+          }
           saveState();
           renderTimer();
         }
@@ -1879,9 +2023,12 @@
         }
 
         if (target.dataset.deleteEvent) {
-          state.events = (state.events || []).filter(item => item.id !== target.dataset.deleteEvent);
-          saveState();
-          renderCalendar();
+          const confirmed = await showConfirm("Are you sure you want to delete this event?");
+          if (confirmed) {
+            state.events = (state.events || []).filter(item => item.id !== target.dataset.deleteEvent);
+            saveState();
+            renderCalendar();
+          }
         }
 
         if (target.dataset.modalToggleEvent) {
@@ -1893,10 +2040,13 @@
         }
 
         if (target.dataset.modalDeleteEvent) {
-          state.events = (state.events || []).filter(item => item.id !== target.dataset.modalDeleteEvent);
-          saveState();
-          openModalForDate(modalTargetDate);
-          renderCalendar();
+          const confirmed = await showConfirm("Are you sure you want to delete this event?");
+          if (confirmed) {
+            state.events = (state.events || []).filter(item => item.id !== target.dataset.modalDeleteEvent);
+            saveState();
+            openModalForDate(modalTargetDate);
+            renderCalendar();
+          }
         }
 
         if (target.dataset.ampm) {
@@ -1995,11 +2145,14 @@
 
       document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
 
+      document.getElementById("confirmModalCancelBtn").addEventListener("click", () => closeConfirm(false));
+      document.getElementById("confirmModalConfirmBtn").addEventListener("click", () => closeConfirm(true));
+
       document.getElementById("menuToggleButton").addEventListener("click", () => {
         const sidebar = document.getElementById("sidebar");
         sidebar.classList.toggle("menu-open");
         const btn = document.getElementById("menuToggleButton");
-        btn.textContent = sidebar.classList.contains("menu-open") ? "‚úï" : "‚ò∞";
+        btn.innerHTML = sidebar.classList.contains("menu-open") ? closeSvg : hamburgerSvg;
       });
 
       startTimer();
