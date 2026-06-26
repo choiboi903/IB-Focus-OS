@@ -114,45 +114,7 @@
         z-index: 100;
       }
 
-      /* Guardian Mode Restrictions */
-      body.guardian-mode #onboardCourseOption,
-      body.guardian-mode #onboardRoomOption,
-      body.guardian-mode #onboardCoursePanel,
-      body.guardian-mode #onboardRoomPanel,
-      body.guardian-mode #taskAddForm,
-      body.guardian-mode #editCoursesBtn,
-      body.guardian-mode #courseForm button[type="submit"],
-      body.guardian-mode #addEventPromptBtn,
-      body.guardian-mode .check-button,
-      body.guardian-mode .task-card .icon-button,
-      body.guardian-mode #calendarEventsList .task-card .icon-button,
-      body.guardian-mode #timerStartPause,
-      body.guardian-mode #timerReset,
-      body.guardian-mode [data-adjust-timer],
-      body.guardian-mode #settingsSyncCreate,
-      body.guardian-mode #syncLeaveBtn,
-      body.guardian-mode #settingsReset,
-      body.guardian-mode #settingsRegenPinBtn,
-      body.guardian-mode [data-ob-day] {
-        display: none !important;
-      }
 
-      body.guardian-mode .course-row input {
-        pointer-events: none !important;
-        opacity: 0.85;
-      }
-
-      body.guardian-mode select,
-      body.guardian-mode input {
-        pointer-events: none !important;
-      }
-
-      body.guardian-mode #settingsSyncJoinCode,
-      body.guardian-mode #settingsSyncJoinBtn,
-      body.guardian-mode #settingsSyncJoinPin,
-      body.guardian-mode #settingsSyncJoinPinBtn {
-        pointer-events: auto !important;
-      }
 
       .brand-group {
         margin-bottom: 32px;
@@ -850,7 +812,7 @@
         </div>
 
         <!-- Option 1: Set up courses -->
-        <div class="panel" id="onboardCourseOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardCourseOption').style.borderColor='var(--accent)'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardPinOption').style.borderColor='transparent'; document.getElementById('onboardCoursePanel').style.display='flex'; document.getElementById('onboardRoomPanel').style.display='none'; document.getElementById('onboardPinPanel').style.display='none';">
+        <div class="panel" id="onboardCourseOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardCourseOption').style.borderColor='var(--accent)'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardCoursePanel').style.display='flex'; document.getElementById('onboardRoomPanel').style.display='none';">
           <div style="display:flex; align-items:center; gap:14px; margin-bottom:4px;">
             <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -880,7 +842,7 @@
         </div>
 
         <!-- Option 2: Join room -->
-        <div class="panel" id="onboardRoomOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardRoomOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardPinOption').style.borderColor='transparent'; document.getElementById('onboardRoomPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none'; document.getElementById('onboardPinPanel').style.display='none';">
+        <div class="panel" id="onboardRoomOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardRoomOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardRoomPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none';">
           <div style="display:flex; align-items:center; gap:14px;">
             <div style="width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round"><path d="M8 17l-3 3-3-3M5 20V4"/><path d="M16 7l3-3 3 3M19 4v16"/></svg>
@@ -896,25 +858,6 @@
         <div id="onboardRoomPanel" style="display:none; flex-direction:column; gap:10px;">
           <input id="onboardRoomCode" type="text" maxlength="8" placeholder="Enter room code" style="padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:18px;letter-spacing:3px;text-transform:uppercase;outline:0;width:100%;box-sizing:border-box;text-align:center;" />
           <button class="primary-button" id="onboardJoinBtn" type="button" style="background:var(--accent);color:var(--bg);">Join Room &amp; Sync</button>
-        </div>
-
-        <!-- Option 3: Guardian PIN -->
-        <div class="panel" id="onboardPinOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardPinOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardPinPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none'; document.getElementById('onboardRoomPanel').style.display='none';">
-          <div style="display:flex; align-items:center; gap:14px;">
-            <div style="width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
-            <div>
-              <div style="font-weight:600; font-size:15px;">Enter a guardian PIN</div>
-              <div class="subtle" style="font-size:13px;">Join a student's room in view-only mode</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Guardian PIN panel -->
-        <div id="onboardPinPanel" style="display:none; flex-direction:column; gap:10px;">
-          <input id="onboardPinCode" type="text" maxlength="4" placeholder="4-digit PIN" style="padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:18px;letter-spacing:4px;outline:0;width:100%;box-sizing:border-box;text-align:center;" />
-          <button class="primary-button" id="onboardPinJoinBtn" type="button" style="background:var(--accent);color:var(--bg);">Join View-Only</button>
         </div>
       </div>
     </div>
@@ -1141,29 +1084,13 @@
                 <button class="primary-button" id="settingsSyncCreate" type="button" style="background: var(--accent); color: var(--bg);">Create Sync Room</button>
                 <div style="border-top: 1px solid var(--line); margin-top: 4px; padding-top: 14px;">
                   <label for="settingsSyncJoinCode" style="display: block; margin-bottom: 8px; font-size: 13px;">Already have a code? Join a room:</label>
-                  <div style="display:flex;gap:8px;margin-bottom:12px;">
+                  <div style="display:flex;gap:8px;">
                     <input id="settingsSyncJoinCode" type="text" maxlength="8" placeholder="Enter room code" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:15px;letter-spacing:2px;text-transform:uppercase;outline:0;" />
                     <button class="secondary-button" id="settingsSyncJoinBtn" type="button" style="font-weight:600;white-space:nowrap;">Join</button>
-                  </div>
-                  
-                  <label for="settingsSyncJoinPin" style="display: block; margin-bottom: 8px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 12px;">Parents/Guardians: Join with 4-Digit PIN:</label>
-                  <div style="display:flex;gap:8px;">
-                    <input id="settingsSyncJoinPin" type="text" maxlength="4" placeholder="4-digit PIN" style="flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:15px;letter-spacing:4px;text-align:center;outline:0;" />
-                    <button class="secondary-button" id="settingsSyncJoinPinBtn" type="button" style="font-weight:600;white-space:nowrap;">Join View-Only</button>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div class="panel section" id="settingsGuardianPanel">
-              <h2>Guardian Monitoring</h2>
-              <p class="subtle">Provide this PIN to your parents. They can enter it to view your live progress without edit permissions.</p>
-              <div style="display:flex; align-items:center; gap:16px; margin-top:4px;">
-                <div id="settingsGuardianPinCode" style="font-size:24px; font-weight:700; font-family:monospace; color:var(--accent); letter-spacing:4px; background:var(--soft); padding:8px 16px; border-radius:8px;">----</div>
-                <button class="secondary-button" id="settingsRegenPinBtn" type="button" style="font-size:13px; min-height:36px; padding:6px 12px;">Regenerate PIN</button>
-              </div>
-            </div>
-
             <div class="panel section">
               <h2>Data Management</h2>
               <p class="subtle">Completely wipe local configuration and focus logs.</p>
@@ -1291,51 +1218,7 @@
       const hamburgerSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>`;
       const closeSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-      const defaultState = {
-        theme: "light",
-        activeView: "dashboard",
-        dayType: "day1",
-        courses: ["", "", "", "", "", "", "", ""],
-        courseDays: ["day1", "day1", "day1", "day1", "day2", "day2", "day2", "day2"],
-        tasks: [],
-        activeTaskId: "",
-        timerMode: "focus",
-        focusDuration: 25,
-        breakDuration: 5,
-        secondsLeft: 25 * 60,
-        timerRunning: false,
-        timeLogs: {}, // Keyed by YYYY-MM-DD: { subjects: {}, tasks: {} }
-        events: [],
-        selectedDate: todayISO(0),
-        guardianPin: ""
-      };
 
-      let isGuardianMode = localStorage.getItem("isGuardianMode") === "true";
-
-      function saveState() {
-        if (isGuardianMode) return; // Prevent local saves by guardian
-        localStorage.setItem(storeKey, JSON.stringify(state));
-        syncPush();
-      }
-
-      function checkUrlImport() {
-        try {
-          const params = new URLSearchParams(window.location.search);
-          const urlData = params.get("sync");
-          if (urlData) {
-            const decoded = JSON.parse(decodeURIComponent(escape(atob(urlData))));
-            if (decoded && typeof decoded === "object") {
-              state = { ...defaultState, ...decoded };
-              saveState();
-              const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-              window.history.replaceState({ path: cleanUrl }, "", cleanUrl);
-              alert("Data successfully imported from sync link!");
-            }
-          }
-        } catch (e) {
-          console.error("Failed to parse URL import data", e);
-        }
-      }
 
       let state = loadState();
       checkUrlImport();
@@ -1466,28 +1349,7 @@
       function render() {
         document.documentElement.dataset.theme = state.theme;
         document.getElementById("themeToggle").innerHTML = state.theme === "light" ? moonSvg : sunSvg;
-        if (!hasSetup() && !isGuardianMode) state.activeView = "courses";
-
-        if (isGuardianMode) {
-          document.body.classList.add("guardian-mode");
-          const syncStatusText = document.getElementById("syncStatusText");
-          if (syncStatusText && syncStatusText.textContent.includes("syncing")) {
-            syncStatusText.textContent = "Live - View-Only (Guardian)";
-          }
-        } else {
-          document.body.classList.remove("guardian-mode");
-        }
-
-        // Render guardian PIN in Settings
-        const pinCodeEl = document.getElementById("settingsGuardianPinCode");
-        if (pinCodeEl) {
-          if (!state.guardianPin) {
-            state.guardianPin = String(Math.floor(1000 + Math.random() * 9000));
-            saveState();
-          }
-          pinCodeEl.textContent = state.guardianPin;
-        }
-
+        if (!hasSetup()) state.activeView = "courses";
         document.querySelectorAll(".view").forEach((view) => {
           view.classList.toggle("active", view.id === viewNameToId(state.activeView));
         });
@@ -2105,6 +1967,7 @@
       document.addEventListener("click", async (event) => {
         const target = event.target.closest("button");
         if (!target) return;
+        }
 
         if (target.dataset.viewButton) showView(target.dataset.viewButton);
 
@@ -2257,7 +2120,9 @@
         addTaskFromForm(event.currentTarget);
       });
 
-      document.getElementById("courseForm").addEventListener("submit", saveCourses);
+      document.getElementById("courseForm").addEventListener("submit", (event) => {
+        saveCourses(event);
+      });
 
       document.getElementById("prevMonth").addEventListener("click", () => {
         currentMonthDate.setMonth(currentMonthDate.getMonth() - 1);
@@ -2310,19 +2175,11 @@
       }
 
       function syncPush() {
-        if (!syncRoomCode || isGuardianMode) return;
+        if (!syncRoomCode) return;
         clearTimeout(syncPushTimer);
         syncPushTimer = setTimeout(async () => {
           try {
             syncIgnoreNext = true;
-            // Also store the pin-to-room mapping if PIN is set
-            if (state.guardianPin) {
-              await fetch(`${FIREBASE_URL}/pins/${state.guardianPin}.json`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(syncRoomCode)
-              });
-            }
             await fetch(`${FIREBASE_URL}/rooms/${syncRoomCode}/state.json`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
@@ -2366,16 +2223,13 @@
           const dot = document.getElementById("syncStatusDot");
           const txt = document.getElementById("syncStatusText");
           if (dot) dot.style.background = "#22c55e";
-          if (txt) txt.textContent = isGuardianMode ? "Live - View-Only (Guardian)" : "Live - syncing";
+          if (txt) txt.textContent = "Live - syncing";
         };
       }
 
-      async function syncJoinRoom(code, guardian = false) {
+      async function syncJoinRoom(code) {
         code = code.toUpperCase().trim();
         if (!code) return;
-        
-        isGuardianMode = guardian;
-        localStorage.setItem("isGuardianMode", guardian ? "true" : "false");
         
         // Pull existing data first
         try {
@@ -2393,41 +2247,15 @@
         syncSetStatus(true, code);
       }
 
-      async function syncJoinByPin(pin) {
-        pin = pin.trim();
-        if (!pin || pin.length !== 4) { showModal("Please enter a valid 4-digit PIN."); return; }
-        try {
-          const res = await fetch(`${FIREBASE_URL}/pins/${pin}.json`);
-          const targetRoom = await res.json();
-          if (targetRoom && typeof targetRoom === "string") {
-            await syncJoinRoom(targetRoom, true);
-            showModal("Guardian Mode Activated", "You have joined the sync room in view-only Guardian Mode.");
-          } else {
-            showModal("Invalid PIN", "Could not find a room associated with this PIN. Make sure the user has generated this PIN in their settings and has internet access.");
-          }
-        } catch (e) {
-          showModal("Failed to Connect", "There was an error looking up the PIN. Check your connection.");
-        }
-      }
-
       async function syncCreateRoom() {
         const code = syncGenerateCode();
         try {
-          if (state.guardianPin) {
-            await fetch(`${FIREBASE_URL}/pins/${state.guardianPin}.json`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(code)
-            });
-          }
           await fetch(`${FIREBASE_URL}/rooms/${code}/state.json`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(state)
           });
         } catch (e) { console.warn("Could not push to new room", e); }
-        isGuardianMode = false;
-        localStorage.setItem("isGuardianMode", "false");
         syncRoomCode = code;
         localStorage.setItem("syncRoomCode", code);
         syncListen(code);
@@ -2441,16 +2269,14 @@
       function syncLeave() {
         if (syncEventSource) { syncEventSource.close(); syncEventSource = null; }
         syncRoomCode = null;
-        isGuardianMode = false;
         localStorage.removeItem("syncRoomCode");
-        localStorage.removeItem("isGuardianMode");
         syncSetStatus(false, null);
         render();
       }
 
       // Auto-rejoin room on page load
       if (syncRoomCode) {
-        syncJoinRoom(syncRoomCode, isGuardianMode);
+        syncJoinRoom(syncRoomCode);
       }
 
       document.getElementById("settingsSyncCreate").addEventListener("click", syncCreateRoom);
@@ -2458,28 +2284,12 @@
       document.getElementById("settingsSyncJoinBtn").addEventListener("click", () => {
         const code = document.getElementById("settingsSyncJoinCode").value.trim();
         if (!code) { showModal("Enter a room code first."); return; }
-        syncJoinRoom(code, false);
+        syncJoinRoom(code);
       });
 
       document.getElementById("settingsSyncJoinCode").addEventListener("keydown", (e) => {
         if (e.key === "Enter") document.getElementById("settingsSyncJoinBtn").click();
       });
-
-      document.getElementById("settingsSyncJoinPinBtn").addEventListener("click", () => {
-        const pin = document.getElementById("settingsSyncJoinPin").value.trim();
-        syncJoinByPin(pin);
-      });
-
-      document.getElementById("settingsSyncJoinPin").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") document.getElementById("settingsSyncJoinPinBtn").click();
-      });
-
-      document.getElementById("settingsRegenPinBtn").addEventListener("click", () => {
-        state.guardianPin = String(Math.floor(1000 + Math.random() * 9000));
-        saveState();
-        render();
-      });
-
       document.getElementById("syncLeaveBtn").addEventListener("click", syncLeave);
 
       document.getElementById("startSuggested").addEventListener("click", () => {
@@ -2609,19 +2419,6 @@
         document.getElementById("onboardRoomCode").addEventListener("keydown", e => {
           if (e.key === "Enter") document.getElementById("onboardJoinBtn").click();
         });
-
-        document.getElementById("onboardPinJoinBtn").addEventListener("click", async () => {
-          const pin = document.getElementById("onboardPinCode").value.trim();
-          if (!pin) { return; }
-          overlay.style.display = "none";
-          await syncJoinByPin(pin);
-          render();
-        });
-
-        document.getElementById("onboardPinCode").addEventListener("keydown", e => {
-          if (e.key === "Enter") document.getElementById("onboardPinJoinBtn").click();
-        });
-
         updateOnboardCounts();
       })();
 
