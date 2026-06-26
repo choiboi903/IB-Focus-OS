@@ -850,7 +850,7 @@
         </div>
 
         <!-- Option 1: Set up courses -->
-        <div class="panel" id="onboardCourseOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardCourseOption').style.borderColor='var(--accent)'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardCoursePanel').style.display='flex'; document.getElementById('onboardRoomPanel').style.display='none';">
+        <div class="panel" id="onboardCourseOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardCourseOption').style.borderColor='var(--accent)'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardPinOption').style.borderColor='transparent'; document.getElementById('onboardCoursePanel').style.display='flex'; document.getElementById('onboardRoomPanel').style.display='none'; document.getElementById('onboardPinPanel').style.display='none';">
           <div style="display:flex; align-items:center; gap:14px; margin-bottom:4px;">
             <div style="width:40px;height:40px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--bg)" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
@@ -880,7 +880,7 @@
         </div>
 
         <!-- Option 2: Join room -->
-        <div class="panel" id="onboardRoomOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardRoomOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardRoomPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none';">
+        <div class="panel" id="onboardRoomOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardRoomOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardPinOption').style.borderColor='transparent'; document.getElementById('onboardRoomPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none'; document.getElementById('onboardPinPanel').style.display='none';">
           <div style="display:flex; align-items:center; gap:14px;">
             <div style="width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round"><path d="M8 17l-3 3-3-3M5 20V4"/><path d="M16 7l3-3 3 3M19 4v16"/></svg>
@@ -896,6 +896,25 @@
         <div id="onboardRoomPanel" style="display:none; flex-direction:column; gap:10px;">
           <input id="onboardRoomCode" type="text" maxlength="8" placeholder="Enter room code" style="padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:18px;letter-spacing:3px;text-transform:uppercase;outline:0;width:100%;box-sizing:border-box;text-align:center;" />
           <button class="primary-button" id="onboardJoinBtn" type="button" style="background:var(--accent);color:var(--bg);">Join Room &amp; Sync</button>
+        </div>
+
+        <!-- Option 3: Guardian PIN -->
+        <div class="panel" id="onboardPinOption" style="cursor:pointer; border: 2px solid transparent; transition: border-color 0.2s;" onclick="document.getElementById('onboardPinOption').style.borderColor='var(--accent)'; document.getElementById('onboardCourseOption').style.borderColor='transparent'; document.getElementById('onboardRoomOption').style.borderColor='transparent'; document.getElementById('onboardPinPanel').style.display='flex'; document.getElementById('onboardCoursePanel').style.display='none'; document.getElementById('onboardRoomPanel').style.display='none';">
+          <div style="display:flex; align-items:center; gap:14px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:var(--soft);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <div style="font-weight:600; font-size:15px;">Enter a guardian PIN</div>
+              <div class="subtle" style="font-size:13px;">Join a student's room in view-only mode</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guardian PIN panel -->
+        <div id="onboardPinPanel" style="display:none; flex-direction:column; gap:10px;">
+          <input id="onboardPinCode" type="text" maxlength="4" placeholder="4-digit PIN" style="padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-strong);color:var(--text);font-family:monospace;font-size:18px;letter-spacing:4px;outline:0;width:100%;box-sizing:border-box;text-align:center;" />
+          <button class="primary-button" id="onboardPinJoinBtn" type="button" style="background:var(--accent);color:var(--bg);">Join View-Only</button>
         </div>
       </div>
     </div>
@@ -2589,6 +2608,18 @@
 
         document.getElementById("onboardRoomCode").addEventListener("keydown", e => {
           if (e.key === "Enter") document.getElementById("onboardJoinBtn").click();
+        });
+
+        document.getElementById("onboardPinJoinBtn").addEventListener("click", async () => {
+          const pin = document.getElementById("onboardPinCode").value.trim();
+          if (!pin) { return; }
+          overlay.style.display = "none";
+          await syncJoinByPin(pin);
+          render();
+        });
+
+        document.getElementById("onboardPinCode").addEventListener("keydown", e => {
+          if (e.key === "Enter") document.getElementById("onboardPinJoinBtn").click();
         });
 
         updateOnboardCounts();
