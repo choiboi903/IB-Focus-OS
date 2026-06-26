@@ -999,8 +999,15 @@
             </div>
             <div class="panel section">
               <h2>Device Sync (Database-free)</h2>
-              <p class="subtle">Generate a sync link to transfer all your courses, tasks, logs, and calendar events to your phone or another browser.</p>
-              <button class="primary-button" id="settingsSyncGen" type="button" style="background: var(--accent); color: var(--bg);">Generate & Copy Sync Link</button>
+              <p class="subtle">Export your sync code to copy to another device, or paste a code below to import.</p>
+              <div style="display: flex; flex-direction: column; gap: 12px; align-items: stretch;">
+                <button class="primary-button" id="settingsSyncGen" type="button" style="background: var(--accent); color: var(--bg);">Copy Sync Code</button>
+                <div style="border-top: 1px solid var(--line); margin-top: 8px; padding-top: 16px;">
+                  <label for="settingsSyncImportCode" style="display: block; margin-bottom: 8px;">Import Sync Code</label>
+                  <textarea id="settingsSyncImportCode" placeholder="Paste your sync code here..." style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel-strong); color: var(--text); font-family: monospace; font-size: 12px; resize: vertical; outline: 0;"></textarea>
+                  <button class="secondary-button" id="settingsSyncImportBtn" type="button" style="width: 100%; margin-top: 8px; font-weight: 600;">Import Code</button>
+                </div>
+              </div>
             </div>
             <div class="panel section">
               <h2>Data Management</h2>
@@ -2092,18 +2099,40 @@
       document.getElementById("settingsSyncGen").addEventListener("click", () => {
         try {
           const serialized = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-          const url = window.location.protocol + "//" + window.location.host + window.location.pathname + "?sync=" + encodeURIComponent(serialized);
           if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(() => {
-              alert("Sync link successfully generated and copied to your clipboard!");
+            navigator.clipboard.writeText(serialized).then(() => {
+              alert("Sync code copied to clipboard! Paste it on your other device to import.");
             }).catch(() => {
-              prompt("Could not copy automatically. Copy this URL manually to sync:", url);
+              prompt("Could not copy automatically. Copy this code manually:", serialized);
             });
           } else {
-            prompt("Copy this URL manually to sync:", url);
+            prompt("Copy this code manually:", serialized);
           }
         } catch (e) {
-          alert("Failed to generate sync link.");
+          alert("Failed to generate sync code.");
+        }
+      });
+
+      document.getElementById("settingsSyncImportBtn").addEventListener("click", () => {
+        const inputArea = document.getElementById("settingsSyncImportCode");
+        const val = inputArea.value.trim();
+        if (!val) {
+          alert("Please paste a sync code first.");
+          return;
+        }
+        try {
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(val))));
+          if (decoded && typeof decoded === "object") {
+            state = { ...defaultState, ...decoded };
+            saveState();
+            inputArea.value = "";
+            render();
+            alert("Data successfully imported!");
+          } else {
+            alert("Invalid sync code format.");
+          }
+        } catch (e) {
+          alert("Failed to parse sync code. Make sure you copied the entire code.");
         }
       });
 
