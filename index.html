@@ -689,39 +689,56 @@
         .sidebar {
           width: 100%;
           min-height: auto;
-          padding: 24px;
+          padding: 16px 24px;
           border-right: 0;
           border-bottom: 1px solid var(--line);
+          display: flex;
+          flex-direction: column;
+          align-items: stretch;
+          background: var(--panel-strong);
         }
 
-        .brand-group {
-          margin-bottom: 16px;
+        #menuToggleButton {
+          display: inline-flex !important;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .sidebar-menu-content {
+          display: none !important;
+          flex-direction: column;
+        }
+
+        .sidebar.menu-open .sidebar-menu-content {
+          display: flex !important;
         }
 
         .nav {
           display: flex;
+          flex-direction: column;
           gap: 6px;
-          margin-top: 12px;
-          overflow-x: auto;
-          padding-bottom: 8px;
+          margin-top: 16px !important;
         }
 
         .nav button {
-          width: auto;
-          white-space: nowrap;
+          width: 100%;
         }
 
         .sidebar-bottom {
-          display: none; /* Combine reset into settings/etc */
+          display: flex !important;
+          margin-top: 16px !important;
+          padding-top: 16px !important;
+          border-top: 1px solid var(--line);
         }
 
         .main {
-          padding: 32px 24px;
+          padding: 24px 16px;
         }
 
         .top-row {
           align-items: stretch;
           flex-direction: column;
+          gap: 12px;
         }
 
         .subject-grid {
@@ -730,6 +747,26 @@
 
         .quick-add {
           grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .calendar-container {
+          gap: 4px;
+        }
+        .calendar-day {
+          min-height: 85px !important;
+          padding: 4px !important;
+        }
+        .calendar-day span {
+          font-size: 11px !important;
+        }
+        .calendar-day div {
+          font-size: 8px !important;
+          gap: 2px !important;
+        }
+        .calendar-day div div span {
+          display: none !important;
         }
       }
 
@@ -746,13 +783,16 @@
   </head>
   <body>
     <div class="app">
-      <aside class="sidebar">
-        <div>
-          <div class="brand-group">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <div class="brand-group" style="margin-bottom: 0;">
             <p class="brand">IB Focus OS</p>
             <p class="subtle">Sleek daily workflow</p>
           </div>
-          <nav class="nav" aria-label="Main navigation">
+          <button id="menuToggleButton" class="icon-button" type="button" aria-label="Toggle menu" style="display: none; width: 40px; height: 40px; border: 0; background: transparent; font-size: 24px; color: var(--text);">‚ò∞</button>
+        </div>
+        <div class="sidebar-menu-content" id="sidebarMenuContent" style="display: flex; flex-direction: column; flex: 1; justify-content: space-between; width: 100%;">
+          <nav class="nav" aria-label="Main navigation" style="margin-top: 20px;">
             <button class="active" data-view-button="dashboard" type="button">Dashboard</button>
             <button data-view-button="tasks" type="button">Tasks</button>
             <button data-view-button="courses" type="button">Courses</button>
@@ -761,9 +801,9 @@
             <button data-view-button="summary" type="button">Day Summary</button>
             <button data-view-button="settings" type="button">Settings</button>
           </nav>
-        </div>
-        <div class="sidebar-bottom">
-          <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">‚òº</button>
+          <div class="sidebar-bottom" style="margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle theme">‚òº</button>
+          </div>
         </div>
       </aside>
 
@@ -1182,6 +1222,12 @@
         state.activeView = viewName;
         if (!hasSetup()) state.activeView = "courses";
         saveState();
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar && sidebar.classList.contains("menu-open")) {
+          sidebar.classList.remove("menu-open");
+          const toggleBtn = document.getElementById("menuToggleButton");
+          if (toggleBtn) toggleBtn.textContent = "‚ò∞";
+        }
         render();
       }
 
@@ -1948,6 +1994,13 @@
       });
 
       document.getElementById("modalCancelBtn").addEventListener("click", closeModal);
+
+      document.getElementById("menuToggleButton").addEventListener("click", () => {
+        const sidebar = document.getElementById("sidebar");
+        sidebar.classList.toggle("menu-open");
+        const btn = document.getElementById("menuToggleButton");
+        btn.textContent = sidebar.classList.contains("menu-open") ? "‚úï" : "‚ò∞";
+      });
 
       startTimer();
       render();
