@@ -227,6 +227,18 @@
         100% { transform: scale(1); box-shadow: none; }
       }
 
+      @keyframes task-out {
+        0%   { opacity: 1; transform: scale(1) translateX(0); max-height: 140px; margin-bottom: 0; }
+        30%  { opacity: 0.7; transform: scale(1.01) translateX(0); }
+        100% { opacity: 0; transform: scale(0.96) translateX(20px); max-height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: -12px; }
+      }
+
+      .task-card.task-removing {
+        animation: task-out 0.38s cubic-bezier(0.4, 0, 1, 1) both;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
       .stack {
         display: grid;
         gap: 36px;
@@ -1090,6 +1102,17 @@
               <p class="subtle">Locally cached inside your browser storage.</p>
             </div>
             <div class="panel section">
+              <h2>Appearance</h2>
+              <p class="subtle">Customize your theme and accent color.</p>
+              <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                <button class="secondary-button" id="settingsThemeToggle" type="button" style="min-height:36px; padding:6px 16px; font-size:13px; display:inline-flex; align-items:center; gap:8px;"></button>
+              </div>
+              <div style="margin-top:18px;">
+                <label style="display:block; margin-bottom:12px;">Accent Color</label>
+                <div id="accentSwatches" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;"></div>
+              </div>
+            </div>
+            <div class="panel section">
               <h2>Live Device Sync</h2>
               <p class="subtle">Create a room on one device, enter the code on another - changes sync instantly in real time.</p>
               <div id="syncStatusBar" style="display:none; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: var(--soft); margin-bottom: 4px; font-size: 13px;">
@@ -1229,6 +1252,15 @@
       });
 
       const storeKey = "ib-focus-os-local";
+
+      const ACCENT_PALETTES = {
+        green:  { light: { a: "#3a5a40", g: "rgba(58,90,64,0.15)"   }, dark: { a: "#52b788", g: "rgba(82,183,136,0.15)"   } },
+        blue:   { light: { a: "#1d4ed8", g: "rgba(29,78,216,0.15)"  }, dark: { a: "#60a5fa", g: "rgba(96,165,250,0.15)"   } },
+        purple: { light: { a: "#7c3aed", g: "rgba(124,58,237,0.15)" }, dark: { a: "#a78bfa", g: "rgba(167,139,250,0.15)"  } },
+        rose:   { light: { a: "#be123c", g: "rgba(190,18,60,0.15)"  }, dark: { a: "#fb7185", g: "rgba(251,113,133,0.15)"  } },
+        amber:  { light: { a: "#b45309", g: "rgba(180,83,9,0.15)"   }, dark: { a: "#fbbf24", g: "rgba(251,191,36,0.15)"   } },
+        teal:   { light: { a: "#0f766e", g: "rgba(15,118,110,0.15)" }, dark: { a: "#2dd4bf", g: "rgba(45,212,191,0.15)"   } },
+      };
       const focusSeconds = 25 * 60;
       const breakSeconds = 5 * 60;
 
@@ -1254,6 +1286,7 @@
         breakDuration: 5,
         activeTaskId: "none",
         selectedDate: new Date().toISOString().slice(0, 10),
+        accentColor: "green",
       };
 
       function saveState() {
@@ -1272,7 +1305,21 @@
         } catch(e) {}
       }
 
+      function cleanupOldTasks() {
+        const cutoff = new Date();
+        cutoff.setDate(cutoff.getDate() - 7);
+        const cutoffStr = cutoff.toISOString().slice(0, 10);
+        const before = state.tasks.length;
+        state.tasks = state.tasks.filter(t => {
+          if (t.status !== "done") return true;
+          if (!t.completedAt) return true;
+          return t.completedAt > cutoffStr;
+        });
+        if (state.tasks.length !== before) saveState();
+      }
+
       let state = loadState();
+      cleanupOldTasks();
       checkUrlImport();
 
       let lastTickTimestamp = Date.now();
@@ -1315,7 +1362,9 @@
         try {
           const saved = JSON.parse(localStorage.getItem(storeKey)) || {};
           const loaded = { ...defaultState, ...saved };
-          loaded.courseDays = ["day1", "day1", "day1", "day1", "day2", "day2", "day2", "day2"];
+          // preserve 9th courseDays element if extra block exists
+          if (!loaded.courseDays || loaded.courseDays.length < 8) loaded.courseDays = ["day1","day1","day1","day1","day2","day2","day2","day2"];
+          if (loaded.courses && loaded.courses.length === 9 && loaded.courseDays.length < 9) loaded.courseDays.push("day1");
           if (!loaded.events) loaded.events = [];
           if (!loaded.tasks) loaded.tasks = [];
           if (!loaded.timeLogs) loaded.timeLogs = {};
@@ -1337,7 +1386,9 @@
 
       function hasSetup() {
         const clean = state.courses.map((course) => course.trim()).filter(Boolean);
-        return (clean.length === 8 && schedule().day1.length === 4 && schedule().day2.length === 4) || !!localStorage.getItem("syncRoomCode");
+        const sched = schedule();
+        const valid = clean.length >= 8 && sched.day1.length >= 4 && sched.day2.length >= 4;
+        return valid || !!localStorage.getItem("syncRoomCode");
       }
 
       function schedule() {
@@ -1398,9 +1449,31 @@
         render();
       }
 
+      function renderAccentSwatches() {
+        const wrap = document.getElementById("accentSwatches");
+        if (!wrap) return;
+        const cur = state.accentColor || "green";
+        const isDark = state.theme === "dark";
+        wrap.innerHTML = Object.entries(ACCENT_PALETTES).map(([name, pal]) => {
+          const col = isDark ? pal.dark.a : pal.light.a;
+          const active = name === cur;
+          return `<button type="button" data-accent-color="${name}" title="${name[0].toUpperCase()+name.slice(1)}" style="
+            width:32px;height:32px;border-radius:50%;background:${col};border:3px solid ${active ? "var(--text)" : "transparent"};
+            outline:${active ? "2px solid "+col : "none"};outline-offset:2px;cursor:pointer;transition:transform 0.15s;
+          " onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform=''"></button>`;
+        }).join("");
+        const settingsThemeBtn = document.getElementById("settingsThemeToggle");
+        if (settingsThemeBtn) settingsThemeBtn.innerHTML = state.theme === "light" ? moonSvg + " Dark Mode" : sunSvg + " Light Mode";
+      }
+
       function render() {
         document.documentElement.dataset.theme = state.theme;
         document.getElementById("themeToggle").innerHTML = state.theme === "light" ? moonSvg : sunSvg;
+        // Apply accent palette
+        const pal = ACCENT_PALETTES[state.accentColor || "green"];
+        const mode = state.theme === "dark" ? "dark" : "light";
+        document.documentElement.style.setProperty("--accent", pal[mode].a);
+        document.documentElement.style.setProperty("--accent-glow", pal[mode].g);
         if (!hasSetup()) state.activeView = "courses";
         document.querySelectorAll(".view").forEach((view) => {
           view.classList.toggle("active", view.id === viewNameToId(state.activeView));
@@ -1420,6 +1493,7 @@
         renderTimer();
         renderSummary();
         renderCalendar();
+        renderAccentSwatches();
       }
 
       function renderSubjects() {
@@ -1433,8 +1507,8 @@
 
       function quickFormHtml() {
         const courses = visibleCourses();
-        const subjectOptions = courses
-          .map((course) => `<option value="${escapeHtml(course)}">${escapeHtml(course)}</option>`)
+        const datalistOptions = courses
+          .map((course) => `<option value="${escapeHtml(course)}">`)
           .join("");
 
         return `
@@ -1442,7 +1516,8 @@
             <input name="title" placeholder="Enter task description" required />
           </label>
           <label>Subject
-            <select name="subject" required>${subjectOptions}</select>
+            <input name="subject" list="subjectSuggestions" placeholder="Type or pick a subject..." required autocomplete="off" />
+            <datalist id="subjectSuggestions">${datalistOptions}<option value="Other"></datalist>
           </label>
           <label>Priority
             <select name="priority">
@@ -1503,39 +1578,67 @@
 
       function updateCourseCounts() {
         const nextSchedule = schedule();
-        document.getElementById("day1Count").textContent = `${nextSchedule.day1.length} of 4 blocks`;
-        document.getElementById("day2Count").textContent = `${nextSchedule.day2.length} of 4 blocks`;
+        const hasExtra = state.courses.length === 9;
+        const d1Max = hasExtra && (state.courseDays[8] || "day1") === "day1" ? 5 : 4;
+        const d2Max = hasExtra && state.courseDays[8] === "day2" ? 5 : 4;
+        document.getElementById("day1Count").textContent = `${nextSchedule.day1.length} of ${d1Max} blocks`;
+        document.getElementById("day2Count").textContent = `${nextSchedule.day2.length} of ${d2Max} blocks`;
       }
 
       let coursesEditing = false;
 
       function renderCourses() {
-        document.getElementById("courseRows").innerHTML = state.courses
-          .map(
-            (course, index) => {
-              const isDay1 = index < 4;
-              const blockNum = isDay1 ? (index + 1) : (index - 3);
-              const labelText = `Day ${isDay1 ? 1 : 2} - Block ${blockNum}`;
-              const placeholderText = `Enter Day ${isDay1 ? 1 : 2} Block ${blockNum} class`;
-              const disabledAttr = coursesEditing ? "" : "readonly style='opacity: 0.85; cursor: not-allowed;'";
-              return `
-                <div class="course-row panel">
-                  <label style="flex: 1;">
-                    ${labelText}
-                    <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="${placeholderText}" required ${disabledAttr} />
-                  </label>
+        const hasExtra = state.courses.length === 9;
+
+        function courseRowHtml(course, index) {
+          let labelText;
+          if (index < 4) {
+            labelText = `Day 1 - Block ${index + 1}`;
+          } else if (index < 8) {
+            labelText = `Day 2 - Block ${index - 3}`;
+          } else {
+            // extra block - use dynamic index so multiple extras work
+            const extraDay = state.courseDays[index] || "day1";
+            const d1Active = extraDay === "day1";
+            return `
+              <div class="course-row panel" style="flex-direction:column; gap:10px; align-items:stretch;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                  <span style="font-weight:600; font-size:13px; color:var(--accent); text-transform:uppercase; letter-spacing:0.08em;">Extra Course</span>
+                  <div style="display:flex; gap:4px;">
+                    <button type="button" style="padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:${d1Active?'var(--accent)':'var(--panel-strong)'};color:${d1Active?'var(--bg)':'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;" onclick="state.courseDays[${index}]='day1';renderCourses();">D1</button>
+                    <button type="button" style="padding:4px 10px;border-radius:6px;border:1px solid var(--line);background:${!d1Active?'var(--accent)':'var(--panel-strong)'};color:${!d1Active?'var(--bg)':'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;" onclick="state.courseDays[${index}]='day2';renderCourses();">D2</button>
+                    <button type="button" onclick="state.courses.splice(${index},1);state.courseDays.splice(${index},1);renderCourses();" style="padding:4px 8px;border-radius:6px;border:1px solid rgba(180,35,24,0.25);background:transparent;color:#b42318;font-size:12px;cursor:pointer;">Remove</button>
+                  </div>
                 </div>
-              `;
-            }
-          )
-          .join("");
+                <label style="flex:1; margin:0;">
+                  Extra class name
+                  <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="Enter extra class name" ${coursesEditing ? "" : "readonly style='opacity:0.85;cursor:not-allowed;'"} />
+                </label>
+              </div>
+            `;
+          }
+          const phNum = index < 4 ? index + 1 : index - 3;
+          const phDay = index < 4 ? 1 : 2;
+          const disabledAttr = coursesEditing ? "" : "readonly style='opacity: 0.85; cursor: not-allowed;'";
+          return `
+            <div class="course-row panel">
+              <label style="flex: 1;">
+                ${labelText}
+                <input data-course-index="${index}" value="${escapeHtml(course)}" placeholder="Enter Day ${phDay} Block ${phNum} class" required ${disabledAttr} />
+              </label>
+            </div>
+          `;
+        }
+
+        document.getElementById("courseRows").innerHTML = state.courses.map(courseRowHtml).join("");
 
         updateCourseCounts();
 
         const form = document.getElementById("courseForm");
         const submitBtn = form.querySelector("button[type='submit']");
         let editBtn = document.getElementById("editCoursesBtn");
-        
+        let extraBtn = document.getElementById("addExtraBlockBtn");
+
         if (!editBtn) {
           editBtn = document.createElement("button");
           editBtn.id = "editCoursesBtn";
@@ -1545,19 +1648,36 @@
           editBtn.style.background = "var(--accent)";
           editBtn.style.color = "var(--bg)";
           submitBtn.parentNode.insertBefore(editBtn, submitBtn);
-          
           editBtn.addEventListener("click", () => {
             coursesEditing = true;
             renderCourses();
           });
         }
-        
+
+        if (!extraBtn) {
+          extraBtn = document.createElement("button");
+          extraBtn.id = "addExtraBlockBtn";
+          extraBtn.type = "button";
+          extraBtn.className = "secondary-button";
+          extraBtn.textContent = "+ Add Extra Block";
+          extraBtn.style.borderStyle = "dashed";
+          submitBtn.parentNode.insertBefore(extraBtn, submitBtn);
+          extraBtn.addEventListener("click", () => {
+            state.courses.push("");
+            state.courseDays.push("day1");
+            coursesEditing = true;
+            renderCourses();
+          });
+        }
+
         if (coursesEditing) {
           editBtn.classList.add("hidden");
           submitBtn.classList.remove("hidden");
+          extraBtn.classList.remove("hidden"); // always available while editing
         } else {
           editBtn.classList.remove("hidden");
           submitBtn.classList.add("hidden");
+          extraBtn.classList.add("hidden");
         }
       }
 
@@ -1722,7 +1842,7 @@
         }
 
         const tasksSectionHtml = `
-          <div style="margin-top: 28px; border-top: 1px solid var(--line); padding-top: 24px;">
+          <div>
             <h3 style="margin-bottom: 12px; font-size: 16px; font-weight: 600;">Tasks Completed (${completedTasksCount})</h3>
             <div class="stack" style="gap: 8px;">
               ${completedTasksHtml || `<div class="subtle" style="font-size: 14px; text-align: center; padding: 12px 0;">No tasks checked off for this period.</div>`}
@@ -1730,7 +1850,11 @@
           </div>
         `;
 
-        container.innerHTML = subjectsHtml + tasksSectionHtml;
+        container.innerHTML = tasksSectionHtml + (entries.length ? `
+          <div style="margin-top:28px; border-top:1px solid var(--line); padding-top:24px;">
+            <h3 style="margin-bottom:16px; font-size:16px; font-weight:600;">Time by Subject</h3>
+            ${subjectsHtml}
+          </div>` : '');
       }
 
       function renderCalendar() {
@@ -1863,6 +1987,21 @@
 
       let confirmPromiseResolve = null;
 
+
+      function showModal(title, bodyHtml) {
+        document.getElementById("confirmModalMessage").innerHTML = bodyHtml || title;
+        const confirmBtn = document.getElementById("confirmModalConfirmBtn");
+        confirmBtn.textContent = "OK";
+        confirmBtn.style.background = "var(--accent)";
+        confirmBtn.style.color = "var(--bg)";
+        // hide cancel
+        document.getElementById("confirmModalCancelBtn").style.display = "none";
+        document.getElementById("confirmModal").classList.remove("hidden");
+        confirmPromiseResolve = () => {
+          document.getElementById("confirmModalCancelBtn").style.display = "";
+        };
+      }
+
       function showConfirm(message, confirmText = "Delete", confirmColor = "#b42318") {
         document.getElementById("confirmModalMessage").textContent = message;
         const confirmBtn = document.getElementById("confirmModalConfirmBtn");
@@ -1916,20 +2055,20 @@
         const nextSchedule = schedule();
         const error = document.getElementById("courseError");
 
-        if (clean.length !== 8) {
-          error.textContent = "Please define exactly 8 blocks.";
+        if (clean.length < 8) {
+          error.textContent = "Please fill in all 8 required blocks first.";
           error.classList.remove("hidden");
           return;
         }
 
-        if (unique.size !== 8) {
+        if (unique.size !== clean.length) {
           error.textContent = "Each block must have a unique name.";
           error.classList.remove("hidden");
           return;
         }
 
-        if (nextSchedule.day1.length !== 4 || nextSchedule.day2.length !== 4) {
-          error.textContent = "Distribute exactly 4 blocks to Day 1 and 4 blocks to Day 2.";
+        if (nextSchedule.day1.length < 4 || nextSchedule.day2.length < 4) {
+          error.textContent = "Need at least 4 blocks assigned to Day 1 and 4 to Day 2.";
           error.classList.remove("hidden");
           return;
         }
@@ -2038,15 +2177,27 @@
         if (target.dataset.toggleTask) {
           const task = state.tasks.find((item) => item.id === target.dataset.toggleTask);
           if (task) {
-            task.status = task.status === "done" ? "todo" : "done";
+            const wasCompleting = task.status === "todo";
+            task.status = wasCompleting ? "done" : "todo";
             if (task.status === "done") {
               task.completedAt = todayISO();
             } else {
               delete task.completedAt;
             }
+            saveState();
+            if (wasCompleting) {
+              // animate the card out, then re-render to remove it
+              const card = target.closest("article");
+              if (card) {
+                card.classList.add("task-removing");
+                card.addEventListener("animationend", () => render(), { once: true });
+              } else {
+                render();
+              }
+            } else {
+              render(); // unchecking - reappear immediately
+            }
           }
-          saveState();
-          render();
         }
 
         if (target.dataset.deleteTask) {
@@ -2154,6 +2305,18 @@
         if (target.dataset.ampm) {
           document.querySelectorAll("[data-ampm]").forEach(b => b.classList.remove("active"));
           target.classList.add("active");
+        }
+
+        if (target.dataset.accentColor) {
+          state.accentColor = target.dataset.accentColor;
+          saveState();
+          render();
+        }
+
+        if (target.id === "settingsThemeToggle") {
+          state.theme = state.theme === "light" ? "dark" : "light";
+          saveState();
+          render();
         }
       });
 
